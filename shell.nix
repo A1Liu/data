@@ -14,5 +14,6 @@ pkgs.mkShellNoCC {
     # Programming Languages
     nodejs_22
     pnpm
+    go
   ];
 }
