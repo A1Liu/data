@@ -1,6 +1,7 @@
 type Query {
-  currentUser: User
+  dummy: Boolean
 }
 
 type Mutation {
+  dummy: Boolean
 }
