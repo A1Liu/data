@@ -1,0 +1,6 @@
+type Query {
+  currentUser: User
+}
+
+type Mutation {
+}
