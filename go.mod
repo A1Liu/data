@@ -7,6 +7,7 @@ toolchain go1.23.7
 require (
 	github.com/99designs/gqlgen v0.17.66
 	github.com/vektah/gqlparser/v2 v2.5.22
+	golang.org/x/sync v0.11.0
 )
 
 require (
@@ -21,7 +22,6 @@ require (
 	github.com/urfave/cli/v2 v2.27.5 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	golang.org/x/mod v0.23.0 // indirect
-	golang.org/x/sync v0.11.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
 	golang.org/x/tools v0.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

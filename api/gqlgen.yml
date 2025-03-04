@@ -15,19 +15,11 @@ exec:
   # filename_template: "{name}.generated.go"
 
   # Optional: Maximum number of goroutines in concurrency to use per child resolvers(default: unlimited)
-  # worker_limit: 1000
-
-# Uncomment to enable federation
-# federation:
-#   filename: graph/federation.go
-#   package: graph
-#   version: 2
-#   options:
-#     computed_requires: true
+  worker_limit: 1000
 
 # Where should any generated models go?
 model:
-  filename: graph/model/models_gen.go
+  filename: model/models_gen.go
   package: model
 
   # Optional: Pass in a path to a new gotpl template to use for generating the models
@@ -35,14 +27,14 @@ model:
 
 # Where should the resolver implementations go?
 resolver:
-  package: graph
+  package: resolvers
   layout: follow-schema # Only other option is "single-file."
 
   # Only for single-file layout:
   # filename: graph/resolver.go
 
   # Only for follow-schema layout:
-  dir: graph
+  dir: resolvers
   filename_template: "{name}.resolvers.go"
 
   # Optional: turn on to not generate template comments above resolvers
@@ -117,7 +109,7 @@ call_argument_directives_with_null: true
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
 autobind:
-  - "a1liu.com/data/api/graph/model"
+  - "a1liu.com/data/api/model"
 
 # This section declares type mapping between the GraphQL and go type systems
 #

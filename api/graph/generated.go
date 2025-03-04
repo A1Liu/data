@@ -11,11 +11,12 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"a1liu.com/data/api/graph/model"
+	"a1liu.com/data/api/model"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
+	"golang.org/x/sync/semaphore"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -329,7 +330,7 @@ func (ec *executionContext) field_Mutation_createTodo_argsInput(
 ) (model.NewTodo, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNNewTodo2a1liuᚗcomᚋdataᚋapiᚋgraphᚋmodelᚐNewTodo(ctx, tmp)
+		return ec.unmarshalNNewTodo2a1liuᚗcomᚋdataᚋapiᚋmodelᚐNewTodo(ctx, tmp)
 	}
 
 	var zeroVal model.NewTodo
@@ -528,7 +529,7 @@ func (ec *executionContext) _Mutation_createTodo(ctx context.Context, field grap
 	}
 	res := resTmp.(*model.Todo)
 	fc.Result = res
-	return ec.marshalNTodo2ᚖa1liuᚗcomᚋdataᚋapiᚋgraphᚋmodelᚐTodo(ctx, field.Selections, res)
+	return ec.marshalNTodo2ᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐTodo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createTodo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -634,7 +635,7 @@ func (ec *executionContext) _Query_todos(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]*model.Todo)
 	fc.Result = res
-	return ec.marshalNTodo2ᚕᚖa1liuᚗcomᚋdataᚋapiᚋgraphᚋmodelᚐTodoᚄ(ctx, field.Selections, res)
+	return ec.marshalNTodo2ᚕᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐTodoᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_todos(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -951,7 +952,7 @@ func (ec *executionContext) _Todo_user(ctx context.Context, field graphql.Collec
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖa1liuᚗcomᚋdataᚋapiᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Todo_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3661,7 +3662,7 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) unmarshalNNewTodo2a1liuᚗcomᚋdataᚋapiᚋgraphᚋmodelᚐNewTodo(ctx context.Context, v any) (model.NewTodo, error) {
+func (ec *executionContext) unmarshalNNewTodo2a1liuᚗcomᚋdataᚋapiᚋmodelᚐNewTodo(ctx context.Context, v any) (model.NewTodo, error) {
 	res, err := ec.unmarshalInputNewTodo(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -3681,13 +3682,14 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNTodo2a1liuᚗcomᚋdataᚋapiᚋgraphᚋmodelᚐTodo(ctx context.Context, sel ast.SelectionSet, v model.Todo) graphql.Marshaler {
+func (ec *executionContext) marshalNTodo2a1liuᚗcomᚋdataᚋapiᚋmodelᚐTodo(ctx context.Context, sel ast.SelectionSet, v model.Todo) graphql.Marshaler {
 	return ec._Todo(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNTodo2ᚕᚖa1liuᚗcomᚋdataᚋapiᚋgraphᚋmodelᚐTodoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Todo) graphql.Marshaler {
+func (ec *executionContext) marshalNTodo2ᚕᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐTodoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Todo) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
+	sm := semaphore.NewWeighted(1000)
 	isLen1 := len(v) == 1
 	if !isLen1 {
 		wg.Add(len(v))
@@ -3707,14 +3709,21 @@ func (ec *executionContext) marshalNTodo2ᚕᚖa1liuᚗcomᚋdataᚋapiᚋgraph�
 				}
 			}()
 			if !isLen1 {
-				defer wg.Done()
+				defer func() {
+					sm.Release(1)
+					wg.Done()
+				}()
 			}
-			ret[i] = ec.marshalNTodo2ᚖa1liuᚗcomᚋdataᚋapiᚋgraphᚋmodelᚐTodo(ctx, sel, v[i])
+			ret[i] = ec.marshalNTodo2ᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐTodo(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
 		} else {
-			go f(i)
+			if err := sm.Acquire(ctx, 1); err != nil {
+				ec.Error(ctx, ctx.Err())
+			} else {
+				go f(i)
+			}
 		}
 
 	}
@@ -3729,7 +3738,7 @@ func (ec *executionContext) marshalNTodo2ᚕᚖa1liuᚗcomᚋdataᚋapiᚋgraph�
 	return ret
 }
 
-func (ec *executionContext) marshalNTodo2ᚖa1liuᚗcomᚋdataᚋapiᚋgraphᚋmodelᚐTodo(ctx context.Context, sel ast.SelectionSet, v *model.Todo) graphql.Marshaler {
+func (ec *executionContext) marshalNTodo2ᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐTodo(ctx context.Context, sel ast.SelectionSet, v *model.Todo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -3739,7 +3748,7 @@ func (ec *executionContext) marshalNTodo2ᚖa1liuᚗcomᚋdataᚋapiᚋgraphᚋm
 	return ec._Todo(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUser2ᚖa1liuᚗcomᚋdataᚋapiᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -3756,6 +3765,7 @@ func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlge
 func (ec *executionContext) marshalN__Directive2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirectiveᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.Directive) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
+	sm := semaphore.NewWeighted(1000)
 	isLen1 := len(v) == 1
 	if !isLen1 {
 		wg.Add(len(v))
@@ -3775,14 +3785,21 @@ func (ec *executionContext) marshalN__Directive2ᚕgithubᚗcomᚋ99designsᚋgq
 				}
 			}()
 			if !isLen1 {
-				defer wg.Done()
+				defer func() {
+					sm.Release(1)
+					wg.Done()
+				}()
 			}
 			ret[i] = ec.marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
 		} else {
-			go f(i)
+			if err := sm.Acquire(ctx, 1); err != nil {
+				ec.Error(ctx, ctx.Err())
+			} else {
+				go f(i)
+			}
 		}
 
 	}
@@ -3832,6 +3849,7 @@ func (ec *executionContext) unmarshalN__DirectiveLocation2ᚕstringᚄ(ctx conte
 func (ec *executionContext) marshalN__DirectiveLocation2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
+	sm := semaphore.NewWeighted(1000)
 	isLen1 := len(v) == 1
 	if !isLen1 {
 		wg.Add(len(v))
@@ -3851,14 +3869,21 @@ func (ec *executionContext) marshalN__DirectiveLocation2ᚕstringᚄ(ctx context
 				}
 			}()
 			if !isLen1 {
-				defer wg.Done()
+				defer func() {
+					sm.Release(1)
+					wg.Done()
+				}()
 			}
 			ret[i] = ec.marshalN__DirectiveLocation2string(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
 		} else {
-			go f(i)
+			if err := sm.Acquire(ctx, 1); err != nil {
+				ec.Error(ctx, ctx.Err())
+			} else {
+				go f(i)
+			}
 		}
 
 	}
@@ -3888,6 +3913,7 @@ func (ec *executionContext) marshalN__InputValue2githubᚗcomᚋ99designsᚋgqlg
 func (ec *executionContext) marshalN__InputValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.InputValue) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
+	sm := semaphore.NewWeighted(1000)
 	isLen1 := len(v) == 1
 	if !isLen1 {
 		wg.Add(len(v))
@@ -3907,14 +3933,21 @@ func (ec *executionContext) marshalN__InputValue2ᚕgithubᚗcomᚋ99designsᚋg
 				}
 			}()
 			if !isLen1 {
-				defer wg.Done()
+				defer func() {
+					sm.Release(1)
+					wg.Done()
+				}()
 			}
 			ret[i] = ec.marshalN__InputValue2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
 		} else {
-			go f(i)
+			if err := sm.Acquire(ctx, 1); err != nil {
+				ec.Error(ctx, ctx.Err())
+			} else {
+				go f(i)
+			}
 		}
 
 	}
@@ -3936,6 +3969,7 @@ func (ec *executionContext) marshalN__Type2githubᚗcomᚋ99designsᚋgqlgenᚋg
 func (ec *executionContext) marshalN__Type2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐTypeᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.Type) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
+	sm := semaphore.NewWeighted(1000)
 	isLen1 := len(v) == 1
 	if !isLen1 {
 		wg.Add(len(v))
@@ -3955,14 +3989,21 @@ func (ec *executionContext) marshalN__Type2ᚕgithubᚗcomᚋ99designsᚋgqlgen�
 				}
 			}()
 			if !isLen1 {
-				defer wg.Done()
+				defer func() {
+					sm.Release(1)
+					wg.Done()
+				}()
 			}
 			ret[i] = ec.marshalN__Type2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
 		} else {
-			go f(i)
+			if err := sm.Acquire(ctx, 1); err != nil {
+				ec.Error(ctx, ctx.Err())
+			} else {
+				go f(i)
+			}
 		}
 
 	}
@@ -4050,6 +4091,7 @@ func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgq
 	}
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
+	sm := semaphore.NewWeighted(1000)
 	isLen1 := len(v) == 1
 	if !isLen1 {
 		wg.Add(len(v))
@@ -4069,14 +4111,21 @@ func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgq
 				}
 			}()
 			if !isLen1 {
-				defer wg.Done()
+				defer func() {
+					sm.Release(1)
+					wg.Done()
+				}()
 			}
 			ret[i] = ec.marshalN__EnumValue2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValue(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
 		} else {
-			go f(i)
+			if err := sm.Acquire(ctx, 1); err != nil {
+				ec.Error(ctx, ctx.Err())
+			} else {
+				go f(i)
+			}
 		}
 
 	}
@@ -4097,6 +4146,7 @@ func (ec *executionContext) marshalO__Field2ᚕgithubᚗcomᚋ99designsᚋgqlgen
 	}
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
+	sm := semaphore.NewWeighted(1000)
 	isLen1 := len(v) == 1
 	if !isLen1 {
 		wg.Add(len(v))
@@ -4116,14 +4166,21 @@ func (ec *executionContext) marshalO__Field2ᚕgithubᚗcomᚋ99designsᚋgqlgen
 				}
 			}()
 			if !isLen1 {
-				defer wg.Done()
+				defer func() {
+					sm.Release(1)
+					wg.Done()
+				}()
 			}
 			ret[i] = ec.marshalN__Field2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐField(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
 		} else {
-			go f(i)
+			if err := sm.Acquire(ctx, 1); err != nil {
+				ec.Error(ctx, ctx.Err())
+			} else {
+				go f(i)
+			}
 		}
 
 	}
@@ -4144,6 +4201,7 @@ func (ec *executionContext) marshalO__InputValue2ᚕgithubᚗcomᚋ99designsᚋg
 	}
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
+	sm := semaphore.NewWeighted(1000)
 	isLen1 := len(v) == 1
 	if !isLen1 {
 		wg.Add(len(v))
@@ -4163,14 +4221,21 @@ func (ec *executionContext) marshalO__InputValue2ᚕgithubᚗcomᚋ99designsᚋg
 				}
 			}()
 			if !isLen1 {
-				defer wg.Done()
+				defer func() {
+					sm.Release(1)
+					wg.Done()
+				}()
 			}
 			ret[i] = ec.marshalN__InputValue2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValue(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
 		} else {
-			go f(i)
+			if err := sm.Acquire(ctx, 1); err != nil {
+				ec.Error(ctx, ctx.Err())
+			} else {
+				go f(i)
+			}
 		}
 
 	}
@@ -4198,6 +4263,7 @@ func (ec *executionContext) marshalO__Type2ᚕgithubᚗcomᚋ99designsᚋgqlgen�
 	}
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
+	sm := semaphore.NewWeighted(1000)
 	isLen1 := len(v) == 1
 	if !isLen1 {
 		wg.Add(len(v))
@@ -4217,14 +4283,21 @@ func (ec *executionContext) marshalO__Type2ᚕgithubᚗcomᚋ99designsᚋgqlgen�
 				}
 			}()
 			if !isLen1 {
-				defer wg.Done()
+				defer func() {
+					sm.Release(1)
+					wg.Done()
+				}()
 			}
 			ret[i] = ec.marshalN__Type2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
 		} else {
-			go f(i)
+			if err := sm.Acquire(ctx, 1); err != nil {
+				ec.Error(ctx, ctx.Err())
+			} else {
+				go f(i)
+			}
 		}
 
 	}
