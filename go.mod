@@ -6,6 +6,7 @@ toolchain go1.23.7
 
 require (
 	github.com/99designs/gqlgen v0.17.66
+	github.com/aws/aws-lambda-go v1.47.0
 	github.com/vektah/gqlparser/v2 v2.5.22
 	golang.org/x/sync v0.11.0
 )
