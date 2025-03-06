@@ -2,36 +2,31 @@ package main
 
 import (
 	"context"
-	"encoding/json"
+	"log"
 
-	"a1liu.com/data/api/graph"
-	"a1liu.com/data/api/resolvers"
-	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/handler/extension"
-	"github.com/99designs/gqlgen/graphql/handler/lru"
-	"github.com/99designs/gqlgen/graphql/handler/transport"
-	"github.com/vektah/gqlparser/v2/ast"
+	"a1liu.com/data/api/server"
 
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
 )
 
-func handleRequest(ctx context.Context, event json.RawMessage) error {
-	return nil
+var adapter *httpadapter.HandlerAdapter
+
+func init() {
+	srv := server.CreateGqlServer()
+	adapter = httpadapter.New(srv)
+
+}
+
+func lambdaHandler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	rsp, err := adapter.ProxyWithContext(ctx, req)
+	if err != nil {
+		log.Println(err)
+	}
+	return rsp, err
 }
 
 func main() {
-	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &resolvers.Resolver{}}))
-
-	srv.AddTransport(transport.Options{})
-	srv.AddTransport(transport.GET{})
-	srv.AddTransport(transport.POST{})
-
-	srv.SetQueryCache(lru.New[*ast.QueryDocument](1000))
-
-	srv.Use(extension.Introspection{})
-	srv.Use(extension.AutomaticPersistedQuery{
-		Cache: lru.New[string](100),
-	})
-
-	lambda.Start(handleRequest)
+	lambda.Start(lambdaHandler)
 }
