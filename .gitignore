@@ -50,3 +50,5 @@ dist-ssr
 *.sw?
 
 .vite
+
+/server

@@ -7,6 +7,13 @@ in
 
 pkgs.mkShellNoCC {
   packages = with pkgs; [
+    # infra
+    localstack
+    skaffold
+    k3s
+    k3d
+    k9s
+
     # Tools
     typescript-language-server
     nodePackages.prettier

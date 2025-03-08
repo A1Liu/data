@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gql-api
+spec:
+  ports:
+  - port: 8080
+  type: LoadBalancer
+  selector:
+    app: gql-api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gql-api
+spec:
+  selector:
+    matchLabels:
+      app: gql-api
+  template:
+    metadata:
+      labels:
+        app: gql-api
+    spec:
+      containers:
+      - name: gql-api
+        image: a1liu/gql-api
+        ports:
+        - containerPort: 8080

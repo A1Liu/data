@@ -1,0 +1,22 @@
+apiVersion: skaffold/v1
+kind: Config
+build:
+  local:
+    useBuildkit: true
+    push: false # shouldn't technically be necessary
+  artifacts:
+  - image: a1liu/gql-api
+    context: .
+    docker:
+      dockerfile: api/Dockerfile
+    sync:
+      manual:
+      # Sync all the javascript files that are in the src folder
+      # with the container src folder
+      - src: 'api/**/*.go'
+        dest: .
+
+deploy:
+  kubectl:
+    manifests:
+    - infra/deployment.yml

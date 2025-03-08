@@ -1,7 +1,19 @@
 # data
 
-- lambda
+- k3s in EC2 t4g.nano - may never actually do this lmao
+- postgres + golang GQL thing
+- skaffold, localstack
 - Someday svelte? but not today
+
+## Commands
+- `k3d cluster start`
+- `k3d cluster stop`
+- `skaffold dev --port-forward`
+- `kubectl get svc`
+
+## Resources
+- Kubernetes/skaffold/etc setup
+  - https://devopsspiral.com/articles/k8s/k3d-skaffold/
 
 ## React + TypeScript + Vite Boilerplate info
 
