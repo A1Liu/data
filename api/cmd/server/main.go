@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"a1liu.com/data/api/server"
+
 	"github.com/99designs/gqlgen/graphql/playground"
 )
 

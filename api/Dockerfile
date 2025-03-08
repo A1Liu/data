@@ -1,7 +1,7 @@
 FROM golang:1.22-alpine AS builder
 
 EXPOSE 8080
-WORKDIR /api
+WORKDIR /data
 
 COPY ./go.sum ./
 COPY ./go.mod ./

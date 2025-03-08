@@ -4,7 +4,7 @@ metadata:
   name: gql-api
 spec:
   ports:
-  - port: 8080
+    - port: 8080
   type: LoadBalancer
   selector:
     app: gql-api
@@ -23,7 +23,7 @@ spec:
         app: gql-api
     spec:
       containers:
-      - name: gql-api
-        image: a1liu/gql-api
-        ports:
-        - containerPort: 8080
+        - name: gql-api
+          image: a1liu/gql-api
+          ports:
+            - containerPort: 8080

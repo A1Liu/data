@@ -6,12 +6,14 @@
 - Someday svelte? but not today
 
 ## Commands
+
 - `k3d cluster start`
 - `k3d cluster stop`
 - `skaffold dev --port-forward`
 - `kubectl get svc`
 
 ## Resources
+
 - Kubernetes/skaffold/etc setup
   - https://devopsspiral.com/articles/k8s/k3d-skaffold/
 
