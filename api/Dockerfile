@@ -10,6 +10,6 @@ RUN go mod download
 
 COPY ./api ./api
 
-RUN go build ./api/server.go
+RUN go build ./api/cmd/server/main.go
 
-CMD ["./server"]
+CMD ["./main"]
