@@ -1,7 +1,6 @@
 package server
 
 import (
-
 	"a1liu.com/data/api/graph"
 	"a1liu.com/data/api/resolvers"
 	"github.com/99designs/gqlgen/graphql/handler"
