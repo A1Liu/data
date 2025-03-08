@@ -10,6 +10,7 @@ RUN go mod download
 
 COPY ./api ./api
 
-RUN go build ./api/cmd/server/main.go
+RUN --mount=type=cache,target=/root/.cache/go-build \
+  go build ./api/cmd/server/main.go
 
 CMD ["./main"]
