@@ -13,6 +13,7 @@ pkgs.mkShellNoCC {
     k3s
     k3d
     k9s
+    kubernetes-helm
 
     # Tools
     typescript-language-server
