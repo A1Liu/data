@@ -15,7 +15,7 @@ metadata:
 type: Opaque
 data:
   # This should **not** be in version control
-  password: cGFzc3dvcmQK
+  password: cGFzc3dvcmQ=
 ---
 apiVersion: v1
 kind: PersistentVolume
