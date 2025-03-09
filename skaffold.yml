@@ -14,4 +14,4 @@ deploy:
   kubectl:
     manifests:
       - infra/deployment.yml
-      - infra/localstack.yml
+      - infra/postgres.yml

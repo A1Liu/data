@@ -27,3 +27,14 @@ spec:
           image: a1liu/gql-api
           ports:
             - containerPort: 8080
+          env:
+            - name: POSTGRES_HOST
+              value: "postgres-service"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: password
+          envFrom:
+            - configMapRef:
+                name: postgres-configuration
