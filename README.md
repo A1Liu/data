@@ -2,8 +2,9 @@
 
 - k3s in EC2 t4g.nano - may never actually do this lmao
 - postgres + golang GQL thing
-- skaffold, localstack
+- skaffold
 - Someday svelte? but not today
+- kafka??
 
 ## Commands
 
