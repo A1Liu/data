@@ -51,3 +51,5 @@ dist-ssr
 *.sw?
 
 /server
+
+.tanstack
