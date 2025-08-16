@@ -10,8 +10,6 @@ pkgs.mkShellNoCC {
     # infra
     localstack
     skaffold
-    k3s
-    k3d
     k9s
     kubernetes-helm
 

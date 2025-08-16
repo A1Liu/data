@@ -4,14 +4,8 @@ build:
   local:
     useBuildkit: true
     push: false # shouldn't technically be necessary
-  artifacts:
-    - image: a1liu/gql-api
-      context: .
-      docker:
-        dockerfile: api/Dockerfile
 
 deploy:
   kubectl:
     manifests:
-      - infra/deployment.yml
       - infra/postgres.yml

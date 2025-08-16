@@ -8,6 +8,8 @@
 
 ## Commands
 
+- `skaffold run -f skaffold/infra.yml`
+- `skaffold dev -f skaffold/dev.yml`
 - `k3d cluster start`
 - `k3d cluster stop`
 - `skaffold dev --port-forward`
