@@ -11,7 +11,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 export const rootRoute = createRootRoute({
   component: () => (
-    <div className="padding-8 margin-x-auto text-center w-max-[1280px]">
+    <div className="">
       <div className="p-2 flex gap-2">
         <Link to="/" className="font-light [&.active]:font-bold">
           Home
@@ -20,9 +20,12 @@ export const rootRoute = createRootRoute({
           Ranges
         </Link>
       </div>
+
       <hr />
 
-      <Outlet />
+      <div className="p-8 mx-auto text-center max-w-[1280px]">
+        <Outlet />
+      </div>
       <TanStackRouterDevtools />
     </div>
   ),
