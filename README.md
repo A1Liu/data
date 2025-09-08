@@ -19,6 +19,8 @@
 
 - Kubernetes/skaffold/etc setup
   - https://devopsspiral.com/articles/k8s/k3d-skaffold/
+- https://github.com/crewjam/saml
+- https://github.com/go-pkgz/auth
 
 ## React + TypeScript + Vite Boilerplate info
 
