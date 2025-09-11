@@ -48,34 +48,6 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	DebugQuery struct {
-		ListTables func(childComplexity int) int
-	}
-
-	Mutation struct {
-		CreateTodo func(childComplexity int, input model.NewTodo) int
-		Dummy      func(childComplexity int) int
-	}
-
-	Query struct {
-		Debug       func(childComplexity int) int
-		Dummy       func(childComplexity int) int
-		SessionUser func(childComplexity int) int
-		Todos       func(childComplexity int) int
-	}
-
-	Todo struct {
-		Done func(childComplexity int) int
-		ID   func(childComplexity int) int
-		Text func(childComplexity int) int
-		User func(childComplexity int) int
-	}
-
-	User struct {
-		Email func(childComplexity int) int
-		ID    func(childComplexity int) int
-		Name  func(childComplexity int) int
-	}
 }
 
 type DebugQueryResolver interface {
@@ -109,112 +81,7 @@ func (e *executableSchema) Schema() *ast.Schema {
 func (e *executableSchema) Complexity(typeName, field string, childComplexity int, rawArgs map[string]any) (int, bool) {
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
-	switch typeName + "." + field {
 
-	case "DebugQuery.listTables":
-		if e.complexity.DebugQuery.ListTables == nil {
-			break
-		}
-
-		return e.complexity.DebugQuery.ListTables(childComplexity), true
-
-	case "Mutation.createTodo":
-		if e.complexity.Mutation.CreateTodo == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_createTodo_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.CreateTodo(childComplexity, args["input"].(model.NewTodo)), true
-
-	case "Mutation.dummy":
-		if e.complexity.Mutation.Dummy == nil {
-			break
-		}
-
-		return e.complexity.Mutation.Dummy(childComplexity), true
-
-	case "Query.debug":
-		if e.complexity.Query.Debug == nil {
-			break
-		}
-
-		return e.complexity.Query.Debug(childComplexity), true
-
-	case "Query.dummy":
-		if e.complexity.Query.Dummy == nil {
-			break
-		}
-
-		return e.complexity.Query.Dummy(childComplexity), true
-
-	case "Query.sessionUser":
-		if e.complexity.Query.SessionUser == nil {
-			break
-		}
-
-		return e.complexity.Query.SessionUser(childComplexity), true
-
-	case "Query.todos":
-		if e.complexity.Query.Todos == nil {
-			break
-		}
-
-		return e.complexity.Query.Todos(childComplexity), true
-
-	case "Todo.done":
-		if e.complexity.Todo.Done == nil {
-			break
-		}
-
-		return e.complexity.Todo.Done(childComplexity), true
-
-	case "Todo.id":
-		if e.complexity.Todo.ID == nil {
-			break
-		}
-
-		return e.complexity.Todo.ID(childComplexity), true
-
-	case "Todo.text":
-		if e.complexity.Todo.Text == nil {
-			break
-		}
-
-		return e.complexity.Todo.Text(childComplexity), true
-
-	case "Todo.user":
-		if e.complexity.Todo.User == nil {
-			break
-		}
-
-		return e.complexity.Todo.User(childComplexity), true
-
-	case "User.email":
-		if e.complexity.User.Email == nil {
-			break
-		}
-
-		return e.complexity.User.Email(childComplexity), true
-
-	case "User.id":
-		if e.complexity.User.ID == nil {
-			break
-		}
-
-		return e.complexity.User.ID(childComplexity), true
-
-	case "User.name":
-		if e.complexity.User.Name == nil {
-			break
-		}
-
-		return e.complexity.User.Name(childComplexity), true
-
-	}
 	return 0, false
 }
 
