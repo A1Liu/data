@@ -12,6 +12,11 @@ import (
 	"a1liu.com/data/api/model"
 )
 
+type mutationResolver struct{ *Resolver }
+
+// Mutation returns graph.MutationResolver implementation.
+func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{r} }
+
 // Dummy is the resolver for the dummy field.
 func (r *mutationResolver) Dummy(ctx context.Context) (*bool, error) {
 	panic(fmt.Errorf("not implemented: Dummy - dummy"))
@@ -21,22 +26,3 @@ func (r *mutationResolver) Dummy(ctx context.Context) (*bool, error) {
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
 	panic(fmt.Errorf("not implemented: CreateTodo - createTodo"))
 }
-
-// Dummy is the resolver for the dummy field.
-func (r *queryResolver) Dummy(ctx context.Context) (*bool, error) {
-	panic(fmt.Errorf("not implemented: Dummy - dummy"))
-}
-
-// Todos is the resolver for the todos field.
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: Todos - todos"))
-}
-
-// Mutation returns graph.MutationResolver implementation.
-func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{r} }
-
-// Query returns graph.QueryResolver implementation.
-func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
-
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }

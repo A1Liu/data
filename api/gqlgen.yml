@@ -1,6 +1,6 @@
 # Where are all the schema files located? globs are supported eg  src/**/*.graphqls
 schema:
-  - ../graphql/*.graphqls
+  - ../graphql/*.graphql
 
 # Where should the generated server code go?
 exec:
@@ -47,7 +47,7 @@ model:
 # omit_root_models: false
 
 # Optional: turn on to exclude resolver fields from the generated models file.
-# omit_resolver_fields: false
+omit_resolver_fields: true
 
 # Optional: turn off to make struct-type struct fields not use pointers
 # e.g. type Thing struct { FieldA OtherThing } instead of { FieldA *OtherThing }
@@ -126,3 +126,6 @@ models:
     model:
       - github.com/99designs/gqlgen/graphql.Int
       - github.com/99designs/gqlgen/graphql.Int64
+
+  DebugQuery:
+    model: a1liu.com/data/api/model.DebugQuery

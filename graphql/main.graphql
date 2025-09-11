@@ -3,6 +3,8 @@ type Query {
   todos: [Todo!]!
 
   sessionUser: User
+
+  debug: DebugQuery
 }
 
 type Mutation {

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import clsx from "clsx";
 import { useState } from "react";
+import { Layout } from "../layout";
 
 export const Route = createFileRoute("/ranges")({
   component: RangesPage,
@@ -82,7 +83,7 @@ function RangesPage() {
   };
 
   return (
-    <div>
+    <Layout>
       {[...Array(13).keys()].map((rowIdxNeg) => {
         const rowIdx = 12 - rowIdxNeg;
         const row = range[rowIdx];
@@ -153,6 +154,6 @@ function RangesPage() {
           </div>
         );
       })}
-    </div>
+    </Layout>
   );
 }
