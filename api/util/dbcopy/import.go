@@ -2,6 +2,7 @@ package dbcopy
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -19,12 +20,16 @@ func ListTables(ctx context.Context, pool *pgxpool.Pool) ([]string, error) {
     WHERE table_schema = 'public'
     AND table_type = 'BASE TABLE';
 	`)
-	if err != nil {
-		return nil, err
-
-	}
-
 	defer rows.Close()
 
-	return []string{"hello"}, nil
+	names := make([]string, 16)[:0]
+	for rows.Next() {
+		var name string
+		rows.Scan(&name)
+		names = append(names, name)
+	}
+
+	fmt.Println("%v", names)
+
+	return names, rows.Err()
 }

@@ -14,7 +14,7 @@ metadata:
   name: postgres-credentials
 type: Opaque
 data:
-  # This should **not** be in version control
+  # This should **not** be in version control (it's `password`)
   password: cGFzc3dvcmQ=
 ---
 apiVersion: v1
