@@ -1,6 +1,8 @@
 type Query {
   dummy: Boolean
   todos: [Todo!]!
+
+  sessionUser: User
 }
 
 type Mutation {
@@ -13,11 +15,6 @@ type Todo {
   text: String!
   done: Boolean!
   user: User!
-}
-
-type User {
-  id: ID!
-  name: String!
 }
 
 input NewTodo {
