@@ -44,7 +44,7 @@ omit_complexity: true
 # omit_gqlgen_version_in_file_notice: false
 
 # Optional: turn on to exclude root models such as Query and Mutation from the generated models file.
-# omit_root_models: false
+omit_root_models: true
 
 # Optional: turn on to exclude resolver fields from the generated models file.
 omit_resolver_fields: true

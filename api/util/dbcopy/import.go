@@ -2,7 +2,6 @@ package dbcopy
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
