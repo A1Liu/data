@@ -19,10 +19,16 @@ func (r *Resolver) DebugQuery() graph.DebugQueryResolver {
 	return debugQueryResolver{}
 }
 
-func (d debugQueryResolver) ListTables(ctx context.Context, obj *model.DebugQuery) ([]string, error) {
+func (d debugQueryResolver) Tables(ctx context.Context, obj *model.DebugQuery) ([]model.PgTable, error) {
 	rctx := ResCtx(ctx)
 
-	return dbcopy.ListTables(ctx, rctx.Pool)
+	names, err := dbcopy.ListTables(ctx, rctx.Pool)
+	tables := make([]model.PgTable, len(names))
+	for idx, name := range names {
+		tables[idx] = model.PgTable{Name: name}
+	}
+
+	return tables, err
 }
 
 type debugMutationResolver struct{}
@@ -44,6 +50,34 @@ func (d debugMutationResolver) WriteRawData(ctx context.Context, obj *model.Debu
 		return 0, err
 	}
 
+	conn, err := rctx.Pool.Acquire(ctx)
+	if err != nil {
+		return 0, err
+	}
+	defer conn.Release()
+
 	rowCount, err := dbcopy.WriteUnversionedDataToTable(ctx, rctx.Pool, table, data)
 	return float64(rowCount), err
+}
+
+type pgTableResolver struct{}
+
+func (r *Resolver) PgTable() graph.PgTableResolver { return pgTableResolver{} }
+
+func (p pgTableResolver) Columns(ctx context.Context, obj *model.PgTable) ([]model.PgColumn, error) {
+	rctx := ResCtx(ctx)
+
+	conn, err := rctx.Pool.Acquire(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Release()
+
+	return dbcopy.ListTableColumns(ctx, conn, obj.Name)
+}
+
+func (p pgTableResolver) DumbFullExport(ctx context.Context, obj *model.PgTable) (*model.TableExport, error) {
+	rctx := ResCtx(ctx)
+
+	return dbcopy.ExportTableToJson(ctx, rctx.Pool, obj.Name)
 }

@@ -1,5 +1,22 @@
 type DebugQuery {
-  listTables: [String!]!
+  tables: [PgTable!]!
+}
+
+type PgTable {
+  name: String!
+  columns: [PgColumn!]!
+  dumbFullExport: TableExport!
+}
+
+type TableExport {
+  name: String!
+  version: Int!
+  rows: [Map!]!
+}
+
+type PgColumn {
+  name: String!
+  data_type_name: String!
 }
 
 type DebugMutation {

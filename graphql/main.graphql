@@ -1,3 +1,5 @@
+scalar Map
+
 type Query {
   sessionUser: User
 

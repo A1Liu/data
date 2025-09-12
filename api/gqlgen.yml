@@ -29,7 +29,7 @@ model:
 # struct_tag: json
 
 # Optional: turn on to use []Thing instead of []*Thing
-# omit_slice_element_pointers: false
+omit_slice_element_pointers: true
 
 # Optional: turn on to omit Is<Name>() methods to interface and unions
 # omit_interface_checks: true
