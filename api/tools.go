@@ -5,5 +5,5 @@ package main
 
 import (
 	_ "github.com/99designs/gqlgen"
-	_ "github.com/jackc/tern"
+	_ "github.com/jackc/tern/v2"
 )

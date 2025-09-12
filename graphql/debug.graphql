@@ -1,3 +1,7 @@
 type DebugQuery {
   listTables: [String!]!
 }
+
+type DebugMutation {
+  writeRawData(table: String!, jsonString: String!): Float!
+}

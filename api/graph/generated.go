@@ -39,6 +39,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	DebugMutation() DebugMutationResolver
 	DebugQuery() DebugQueryResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
@@ -50,12 +51,16 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 }
 
+type DebugMutationResolver interface {
+	WriteRawData(ctx context.Context, obj *model.DebugMutation, table string, jsonString string) (float64, error)
+}
 type DebugQueryResolver interface {
 	ListTables(ctx context.Context, obj *model.DebugQuery) ([]string, error)
 }
 type MutationResolver interface {
 	Dummy(ctx context.Context) (*bool, error)
 	CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error)
+	Debug(ctx context.Context) (*model.DebugMutation, error)
 }
 type QueryResolver interface {
 	Dummy(ctx context.Context) (*bool, error)
@@ -190,6 +195,10 @@ var sources = []*ast.Source{
 	{Name: "../../graphql/debug.graphql", Input: `type DebugQuery {
   listTables: [String!]!
 }
+
+type DebugMutation {
+  writeRawData(table: String!, jsonString: String!): Float!
+}
 `, BuiltIn: false},
 	{Name: "../../graphql/main.graphql", Input: `type Query {
   dummy: Boolean
@@ -197,12 +206,13 @@ var sources = []*ast.Source{
 
   sessionUser: User
 
-  debug: DebugQuery
+  debug: DebugQuery!
 }
 
 type Mutation {
   dummy: Boolean
   createTodo(input: NewTodo!): Todo!
+  debug: DebugMutation!
 }
 
 type Todo {
@@ -231,6 +241,47 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_DebugMutation_writeRawData_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_DebugMutation_writeRawData_argsTable(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["table"] = arg0
+	arg1, err := ec.field_DebugMutation_writeRawData_argsJSONString(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["jsonString"] = arg1
+	return args, nil
+}
+func (ec *executionContext) field_DebugMutation_writeRawData_argsTable(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("table"))
+	if tmp, ok := rawArgs["table"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_DebugMutation_writeRawData_argsJSONString(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("jsonString"))
+	if tmp, ok := rawArgs["jsonString"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
 
 func (ec *executionContext) field_Mutation_createTodo_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
@@ -378,6 +429,61 @@ func (ec *executionContext) field___Type_fields_argsIncludeDeprecated(
 
 // region    **************************** field.gotpl *****************************
 
+func (ec *executionContext) _DebugMutation_writeRawData(ctx context.Context, field graphql.CollectedField, obj *model.DebugMutation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DebugMutation_writeRawData(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.DebugMutation().WriteRawData(rctx, obj, fc.Args["table"].(string), fc.Args["jsonString"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DebugMutation_writeRawData(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DebugMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_DebugMutation_writeRawData_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _DebugQuery_listTables(ctx context.Context, field graphql.CollectedField, obj *model.DebugQuery) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_DebugQuery_listTables(ctx, field)
 	if err != nil {
@@ -524,6 +630,54 @@ func (ec *executionContext) fieldContext_Mutation_createTodo(ctx context.Context
 	if fc.Args, err = ec.field_Mutation_createTodo_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_debug(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_debug(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().Debug(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.DebugMutation)
+	fc.Result = res
+	return ec.marshalNDebugMutation2ᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐDebugMutation(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_debug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "writeRawData":
+				return ec.fieldContext_DebugMutation_writeRawData(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DebugMutation", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -693,11 +847,14 @@ func (ec *executionContext) _Query_debug(ctx context.Context, field graphql.Coll
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*model.DebugQuery)
 	fc.Result = res
-	return ec.marshalODebugQuery2ᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐDebugQuery(ctx, field.Selections, res)
+	return ec.marshalNDebugQuery2ᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐDebugQuery(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_debug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3157,6 +3314,76 @@ func (ec *executionContext) unmarshalInputNewTodo(ctx context.Context, obj any) 
 
 // region    **************************** object.gotpl ****************************
 
+var debugMutationImplementors = []string{"DebugMutation"}
+
+func (ec *executionContext) _DebugMutation(ctx context.Context, sel ast.SelectionSet, obj *model.DebugMutation) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, debugMutationImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DebugMutation")
+		case "writeRawData":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._DebugMutation_writeRawData(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var debugQueryImplementors = []string{"DebugQuery"}
 
 func (ec *executionContext) _DebugQuery(ctx context.Context, sel ast.SelectionSet, obj *model.DebugQuery) graphql.Marshaler {
@@ -3253,6 +3480,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "createTodo":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createTodo(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "debug":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_debug(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -3362,13 +3596,16 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		case "debug":
 			field := field
 
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._Query_debug(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
@@ -3862,6 +4099,49 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) marshalNDebugMutation2a1liuᚗcomᚋdataᚋapiᚋmodelᚐDebugMutation(ctx context.Context, sel ast.SelectionSet, v model.DebugMutation) graphql.Marshaler {
+	return ec._DebugMutation(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNDebugMutation2ᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐDebugMutation(ctx context.Context, sel ast.SelectionSet, v *model.DebugMutation) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DebugMutation(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNDebugQuery2a1liuᚗcomᚋdataᚋapiᚋmodelᚐDebugQuery(ctx context.Context, sel ast.SelectionSet, v model.DebugQuery) graphql.Marshaler {
+	return ec._DebugQuery(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNDebugQuery2ᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐDebugQuery(ctx context.Context, sel ast.SelectionSet, v *model.DebugQuery) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DebugQuery(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v any) (float64, error) {
+	res, err := graphql.UnmarshalFloatContext(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.SelectionSet, v float64) graphql.Marshaler {
+	res := graphql.MarshalFloatContext(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return graphql.WrapContextMarshaler(ctx, res)
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v any) (string, error) {
 	res, err := graphql.UnmarshalID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4314,13 +4594,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
-}
-
-func (ec *executionContext) marshalODebugQuery2ᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐDebugQuery(ctx context.Context, sel ast.SelectionSet, v *model.DebugQuery) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._DebugQuery(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v any) (*string, error) {

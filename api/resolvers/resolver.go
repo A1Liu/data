@@ -26,8 +26,8 @@ type ResolverCtx struct {
 	Loaders Loaders
 }
 
-// For returns the dataloader for a given context
-func For(ctx context.Context) *ResolverCtx {
+// ResCtx returns the dataloader for a given context
+func ResCtx(ctx context.Context) *ResolverCtx {
 	return ctx.Value(resolverCtxKey).(*ResolverCtx)
 }
 

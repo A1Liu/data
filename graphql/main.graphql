@@ -4,12 +4,13 @@ type Query {
 
   sessionUser: User
 
-  debug: DebugQuery
+  debug: DebugQuery!
 }
 
 type Mutation {
   dummy: Boolean
   createTodo(input: NewTodo!): Todo!
+  debug: DebugMutation!
 }
 
 type Todo {
