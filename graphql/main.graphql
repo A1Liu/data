@@ -1,26 +1,9 @@
 type Query {
-  dummy: Boolean
-  todos: [Todo!]!
-
   sessionUser: User
 
   debug: DebugQuery!
 }
 
 type Mutation {
-  dummy: Boolean
-  createTodo(input: NewTodo!): Todo!
   debug: DebugMutation!
-}
-
-type Todo {
-  id: ID!
-  text: String!
-  done: Boolean!
-  user: User!
-}
-
-input NewTodo {
-  text: String!
-  userId: String!
 }
