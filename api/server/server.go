@@ -14,7 +14,7 @@ import (
 )
 
 func CreateGqlServer() http.Handler {
-	pool, err := resolvers.GetPgx()
+	pool, err := util.GetPgx()
 	if err != nil {
 		util.L.Err(err).Msg("failed to connect to pool")
 

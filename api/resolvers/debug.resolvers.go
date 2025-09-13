@@ -22,7 +22,13 @@ func (r *Resolver) DebugQuery() graph.DebugQueryResolver {
 func (d debugQueryResolver) Tables(ctx context.Context, obj *model.DebugQuery) ([]model.PgTable, error) {
 	rctx := ResCtx(ctx)
 
-	names, err := dbutil.ListTables(ctx, rctx.Pool)
+	conn, err := rctx.Pool.Acquire(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Release()
+
+	names, err := dbutil.ListTables(ctx, conn)
 	tables := make([]model.PgTable, len(names))
 	for idx, name := range names {
 		tables[idx] = model.PgTable{Name: name}
@@ -56,7 +62,15 @@ func (d debugMutationResolver) WriteRawData(ctx context.Context, obj *model.Debu
 	}
 	defer conn.Release()
 
-	rowCount, err := dbutil.WriteUnversionedDataToTable(ctx, rctx.Pool, table, data)
+	rowCount, err := dbutil.WriteUnversionedDataToTable(ctx, conn, table, data)
+	return float64(rowCount), err
+}
+
+// WriteTables implements graph.DebugMutationResolver.
+func (d debugMutationResolver) WriteTables(ctx context.Context, obj *model.DebugMutation, tables []model.TableImportInput) (float64, error) {
+	rctx := ResCtx(ctx)
+
+	rowCount, err := dbutil.WriteTableImports(ctx, rctx.Pool, tables)
 	return float64(rowCount), err
 }
 
@@ -79,5 +93,11 @@ func (p pgTableResolver) Columns(ctx context.Context, obj *model.PgTable) ([]mod
 func (p pgTableResolver) DumbFullExport(ctx context.Context, obj *model.PgTable) (*model.TableExport, error) {
 	rctx := ResCtx(ctx)
 
-	return dbutil.ExportTableToJson(ctx, rctx.Pool, obj.Name)
+	conn, err := rctx.Pool.Acquire(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Release()
+
+	return dbutil.ExportTableToJson(ctx, conn, obj.Name)
 }

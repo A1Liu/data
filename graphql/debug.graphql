@@ -19,6 +19,13 @@ type PgColumn {
   data_type_name: String!
 }
 
+input TableImportInput {
+  name: String!
+  version: Int!
+  rows: [Map!]!
+}
+
 type DebugMutation {
   writeRawData(table: String!, jsonString: String!): Float!
+  writeTables(tables: [TableImportInput!]!): Float!
 }

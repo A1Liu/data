@@ -11,15 +11,9 @@ import (
 
 func ExportTableToJson(
 	ctx context.Context,
-	pool *pgxpool.Pool,
+	conn *pgxpool.Conn,
 	table string,
 ) (*model.TableExport, error) {
-	conn, err := pool.Acquire(ctx)
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Release()
-
 	migrator, err := Migrator(ctx, conn)
 	if err != nil {
 		return nil, err

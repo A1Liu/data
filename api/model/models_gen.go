@@ -6,3 +6,9 @@ type PgColumn struct {
 	Name         string `json:"name"`
 	DataTypeName string `json:"data_type_name"`
 }
+
+type TableImportInput struct {
+	Name    string           `json:"name"`
+	Version int32            `json:"version"`
+	Rows    []map[string]any `json:"rows"`
+}

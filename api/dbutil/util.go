@@ -14,17 +14,11 @@ const VersionTable = "public." + VersionTableName
 
 type TableImport struct {
 	TableName    string
-	TableVersion int
+	TableVersion int32
 	Rows         []map[string]any
 }
 
-func ListTables(ctx context.Context, pool *pgxpool.Pool) ([]string, error) {
-	conn, err := pool.Acquire(ctx)
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Release()
-
+func ListTables(ctx context.Context, conn *pgxpool.Conn) ([]string, error) {
 	rows, _ := conn.Query(ctx, `
  		SELECT table_name
     FROM information_schema.tables

@@ -3,26 +3,24 @@ package dbutil
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
+	// "time"
 
 	// "github.com/jackc/pgx/v5/pgtype"
 	// "github.com/jackc/tern/v2/migrate"
+	"a1liu.com/data/api/model"
+	"a1liu.com/data/api/util"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func WriteUnversionedDataToTable(
 	ctx context.Context,
-	pool *pgxpool.Pool,
+	conn *pgxpool.Conn,
 	table string,
 	rows []map[string]any,
 ) (int64, error) {
-	conn, err := pool.Acquire(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer conn.Release()
-
 	// TODO: cache this
 	columns, err := ListTableColumns(ctx, conn, table)
 	if err != nil {
@@ -84,8 +82,110 @@ func WriteUnversionedDataToTable(
 	return tag.RowsAffected(), err
 }
 
-func WriteTableImports(imports []TableImport) (int, error) {
-	// migrate.ExtractErrorLine
-	// TODO later: Use tern to handle versioned data
-	return 0, nil
+func WriteTableImports(
+	ctx context.Context,
+	pool *pgxpool.Pool,
+	imports []model.TableImportInput, // TODO: common case is snapshot where they're all the same
+) (int64, error) {
+	if len(imports) == 0 {
+		return 0, nil
+	}
+
+	// Ensure it's sorted.
+	imports = slices.Clone(imports)
+	slices.SortStableFunc(imports, func(a, b model.TableImportInput) int {
+		return int(a.Version - b.Version)
+	})
+
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		return 0, err
+	}
+	defer conn.Release()
+
+	_, err = conn.Exec(ctx, "CREATE DATABASE tmp")
+	if err != nil {
+		return 0, err
+	}
+	defer conn.Exec(ctx, "DROP DATABASE tmp;")
+
+	tmpPool, err := util.GetPgxDatabase("tmp")
+	if err != nil {
+		return 0, err
+	}
+	defer tmpPool.Close()
+
+	tmpConn, err := tmpPool.Acquire(ctx)
+	if err != nil {
+		return 0, err
+	}
+	defer tmpConn.Release()
+
+	migrator, err := Migrator(ctx, tmpConn)
+
+	var rowCount int64 = 0
+	var vers int32 = 0
+	for _, rows := range imports {
+		if vers < rows.Version {
+			err := migrator.MigrateTo(ctx, rows.Version)
+			if err != nil {
+				return 0, err
+			}
+
+			vers = rows.Version
+
+			rowsWritten, err := WriteUnversionedDataToTable(ctx, tmpConn, rows.Name, rows.Rows)
+			if err != nil {
+				return 0, err
+			}
+
+			rowCount += rowsWritten
+		}
+
+		// time.Sleep(30 * time.Second)
+	}
+
+	err = migrator.Migrate(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	tmpCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	readDataIter := util.GoIter2(tmpCtx, func(yield func(*model.TableExport, error) bool) {
+		tables, err := ListTables(tmpCtx, tmpConn)
+		if err != nil {
+			return
+		}
+
+		for _, table := range tables {
+			export, err := ExportTableToJson(tmpCtx, tmpConn, table)
+			if !yield(export, err) || err != nil {
+				break
+			}
+		}
+	})
+
+	var secondRowCount int64 = 0
+	for item, err := range readDataIter {
+		if err != nil {
+			break
+		}
+
+		// TODO use transactions
+		rowCount, err := WriteUnversionedDataToTable(ctx, conn, item.Name, item.Rows)
+		if err != nil {
+			return secondRowCount, err
+		}
+
+		secondRowCount += rowCount
+	}
+
+	if secondRowCount != rowCount {
+		fmt.Printf("rowCount %v != secondRowCount %v\n", rowCount, secondRowCount)
+		panic("row counts don't equal each other")
+	}
+
+	return rowCount, nil
 }

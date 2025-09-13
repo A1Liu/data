@@ -54,6 +54,7 @@ type ComplexityRoot struct {
 
 type DebugMutationResolver interface {
 	WriteRawData(ctx context.Context, obj *model.DebugMutation, table string, jsonString string) (float64, error)
+	WriteTables(ctx context.Context, obj *model.DebugMutation, tables []model.TableImportInput) (float64, error)
 }
 type DebugQueryResolver interface {
 	Tables(ctx context.Context, obj *model.DebugQuery) ([]model.PgTable, error)
@@ -95,7 +96,9 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
-	inputUnmarshalMap := graphql.BuildUnmarshalerMap()
+	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputTableImportInput,
+	)
 	first := true
 
 	switch opCtx.Operation.Operation {
@@ -213,8 +216,15 @@ type PgColumn {
   data_type_name: String!
 }
 
+input TableImportInput {
+  name: String!
+  version: Int!
+  rows: [Map!]!
+}
+
 type DebugMutation {
   writeRawData(table: String!, jsonString: String!): Float!
+  writeTables(tables: [TableImportInput!]!): Float!
 }
 `, BuiltIn: false},
 	{Name: "../../graphql/main.graphql", Input: `scalar Map
@@ -284,6 +294,29 @@ func (ec *executionContext) field_DebugMutation_writeRawData_argsJSONString(
 	}
 
 	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_DebugMutation_writeTables_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_DebugMutation_writeTables_argsTables(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["tables"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_DebugMutation_writeTables_argsTables(
+	ctx context.Context,
+	rawArgs map[string]any,
+) ([]model.TableImportInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("tables"))
+	if tmp, ok := rawArgs["tables"]; ok {
+		return ec.unmarshalNTableImportInput2ᚕa1liuᚗcomᚋdataᚋapiᚋmodelᚐTableImportInputᚄ(ctx, tmp)
+	}
+
+	var zeroVal []model.TableImportInput
 	return zeroVal, nil
 }
 
@@ -465,6 +498,61 @@ func (ec *executionContext) fieldContext_DebugMutation_writeRawData(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _DebugMutation_writeTables(ctx context.Context, field graphql.CollectedField, obj *model.DebugMutation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DebugMutation_writeTables(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.DebugMutation().WriteTables(rctx, obj, fc.Args["tables"].([]model.TableImportInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DebugMutation_writeTables(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DebugMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_DebugMutation_writeTables_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _DebugQuery_tables(ctx context.Context, field graphql.CollectedField, obj *model.DebugQuery) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_DebugQuery_tables(ctx, field)
 	if err != nil {
@@ -558,6 +646,8 @@ func (ec *executionContext) fieldContext_Mutation_debug(_ context.Context, field
 			switch field.Name {
 			case "writeRawData":
 				return ec.fieldContext_DebugMutation_writeRawData(ctx, field)
+			case "writeTables":
+				return ec.fieldContext_DebugMutation_writeTables(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type DebugMutation", field.Name)
 		},
@@ -3286,6 +3376,47 @@ func (ec *executionContext) fieldContext___Type_isOneOf(_ context.Context, field
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputTableImportInput(ctx context.Context, obj any) (model.TableImportInput, error) {
+	var it model.TableImportInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "version", "rows"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "version":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("version"))
+			data, err := ec.unmarshalNInt2int32(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Version = data
+		case "rows":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rows"))
+			data, err := ec.unmarshalNMap2ᚕmapᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Rows = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -3315,6 +3446,42 @@ func (ec *executionContext) _DebugMutation(ctx context.Context, sel ast.Selectio
 					}
 				}()
 				res = ec._DebugMutation_writeRawData(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "writeTables":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._DebugMutation_writeTables(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -4449,6 +4616,28 @@ func (ec *executionContext) marshalNTableExport2ᚖa1liuᚗcomᚋdataᚋapiᚋmo
 		return graphql.Null
 	}
 	return ec._TableExport(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNTableImportInput2a1liuᚗcomᚋdataᚋapiᚋmodelᚐTableImportInput(ctx context.Context, v any) (model.TableImportInput, error) {
+	res, err := ec.unmarshalInputTableImportInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNTableImportInput2ᚕa1liuᚗcomᚋdataᚋapiᚋmodelᚐTableImportInputᚄ(ctx context.Context, v any) ([]model.TableImportInput, error) {
+	var vSlice []any
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]model.TableImportInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTableImportInput2a1liuᚗcomᚋdataᚋapiᚋmodelᚐTableImportInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

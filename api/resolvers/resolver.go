@@ -2,11 +2,8 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 	"net/http"
-	"os"
 
-	"a1liu.com/data/api/util"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/vikstrous/dataloadgen"
 )
@@ -39,24 +36,6 @@ type Loaders struct {
 func NewLoaders(conn *pgxpool.Conn) *Loaders {
 	// define the data loader
 	return &Loaders{}
-}
-
-func GetPgx() (*pgxpool.Pool, error) {
-	host := os.Getenv("POSTGRES_HOST")
-	db := os.Getenv("POSTGRES_DB")
-	user := os.Getenv("POSTGRES_USER")
-	password := os.Getenv("POSTGRES_PASSWORD")
-
-	dbUrl := fmt.Sprintf("postgresql://%s:%s@%s/%s",
-		user,
-		password,
-		host,
-		db,
-	)
-
-	util.L.Info().Str("dbUrl", dbUrl).Msg("failed to connect to pool")
-
-	return pgxpool.New(context.Background(), dbUrl)
 }
 
 // Middleware injects data loaders into the context
