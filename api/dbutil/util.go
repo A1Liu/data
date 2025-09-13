@@ -3,7 +3,7 @@ package dbutil
 import (
 	"context"
 
-	"a1liu.com/data/api/dbutil/migrations"
+	"a1liu.com/data/api/migrations"
 	"a1liu.com/data/api/model"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/tern/v2/migrate"
