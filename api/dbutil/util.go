@@ -64,40 +64,16 @@ func ListTableColumns(ctx context.Context, conn *pgxpool.Conn, table string) ([]
 	return names, rows.Err()
 }
 
-func MigrateDatabase(ctx context.Context, conn *pgxpool.Conn) error {
+func Migrator(ctx context.Context, conn *pgxpool.Conn) (*migrate.Migrator, error) {
 	migrator, err := migrate.NewMigrator(ctx, conn.Conn(), VersionTable)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	err = migrator.LoadMigrations(migrations.Files)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = migrator.Migrate(ctx)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func MigrateDatabaseToVersion(ctx context.Context, conn *pgxpool.Conn, version int32) error {
-	migrator, err := migrate.NewMigrator(ctx, conn.Conn(), VersionTable)
-	if err != nil {
-		return err
-	}
-
-	err = migrator.LoadMigrations(migrations.Files)
-	if err != nil {
-		return err
-	}
-
-	err = migrator.MigrateTo(ctx, version)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return migrator, err
 }

@@ -25,6 +25,11 @@ func (r *mutationResolver) MigrateDb(ctx context.Context) (bool, error) {
 	}
 	defer conn.Release()
 
-	err = dbutil.MigrateDatabase(ctx, conn)
+	migrator, err := dbutil.Migrator(ctx, conn)
+	if err != nil {
+		return false, nil
+	}
+
+	err = migrator.Migrate(ctx)
 	return err == nil, err
 }

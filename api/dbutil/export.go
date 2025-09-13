@@ -7,7 +7,6 @@ import (
 
 	"a1liu.com/data/api/model"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/jackc/tern/v2/migrate"
 )
 
 func ExportTableToJson(
@@ -21,7 +20,7 @@ func ExportTableToJson(
 	}
 	defer conn.Release()
 
-	migrator, err := migrate.NewMigrator(ctx, conn.Conn(), VersionTable)
+	migrator, err := Migrator(ctx, conn)
 	if err != nil {
 		return nil, err
 	}
