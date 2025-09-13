@@ -3,6 +3,7 @@ package dbutil
 import (
 	"context"
 	"embed"
+	"io/fs"
 
 	"a1liu.com/data/api/model"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -73,7 +74,8 @@ func MigrateDatabase(ctx context.Context, conn *pgxpool.Conn) error {
 		return err
 	}
 
-	err = migrator.LoadMigrations(migrations)
+	sub, _ := fs.Sub(migrations, "migrations")
+	err = migrator.LoadMigrations(sub)
 	if err != nil {
 		return err
 	}
@@ -92,7 +94,8 @@ func MigrateDatabaseToVersion(ctx context.Context, conn *pgxpool.Conn, version i
 		return err
 	}
 
-	err = migrator.LoadMigrations(migrations)
+	sub, _ := fs.Sub(migrations, "migrations")
+	err = migrator.LoadMigrations(sub)
 	if err != nil {
 		return err
 	}
