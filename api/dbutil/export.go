@@ -1,4 +1,4 @@
-package dbcopy
+package dbutil
 
 import (
 	"context"
@@ -31,7 +31,7 @@ func ExportTableToJson(
 	}
 
 	rows, _ := conn.Query(ctx, fmt.Sprintf(`
- 	SELECT to_jsonb(t) FROM "%v";
+ 	SELECT to_jsonb(t) FROM "%v" t;
 	`, table))
 
 	export := &model.TableExport{

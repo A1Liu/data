@@ -1,13 +1,19 @@
-package dbcopy
+package dbutil
 
 import (
 	"context"
+	"embed"
 
 	"a1liu.com/data/api/model"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/tern/v2/migrate"
 )
 
-const VersionTable = "public.schema_version"
+const VersionTableName = "schema_version"
+const VersionTable = "public." + VersionTableName
+
+//go:embed migrations/*.sql
+var migrations embed.FS
 
 type TableImport struct {
 	TableName    string
@@ -26,8 +32,8 @@ func ListTables(ctx context.Context, pool *pgxpool.Pool) ([]string, error) {
  		SELECT table_name
     FROM information_schema.tables
     WHERE table_schema = 'public'
-    AND table_type = 'BASE TABLE';
-	`)
+    AND table_type = 'BASE TABLE' AND table_name <> $1;
+	`, VersionTableName)
 	defer rows.Close()
 
 	names := make([]string, 16)[:0]
@@ -59,4 +65,42 @@ func ListTableColumns(ctx context.Context, conn *pgxpool.Conn, table string) ([]
 	}
 
 	return names, rows.Err()
+}
+
+func MigrateDatabase(ctx context.Context, conn *pgxpool.Conn) error {
+	migrator, err := migrate.NewMigrator(ctx, conn.Conn(), VersionTable)
+	if err != nil {
+		return err
+	}
+
+	err = migrator.LoadMigrations(migrations)
+	if err != nil {
+		return err
+	}
+
+	err = migrator.Migrate(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func MigrateDatabaseToVersion(ctx context.Context, conn *pgxpool.Conn, version int32) error {
+	migrator, err := migrate.NewMigrator(ctx, conn.Conn(), VersionTable)
+	if err != nil {
+		return err
+	}
+
+	err = migrator.LoadMigrations(migrations)
+	if err != nil {
+		return err
+	}
+
+	err = migrator.MigrateTo(ctx, version)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -8,4 +8,6 @@ type Query {
 
 type Mutation {
   debug: DebugMutation!
+
+  migrateDb: Boolean!
 }

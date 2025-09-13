@@ -1,4 +1,4 @@
-package dbcopy
+package dbutil
 
 import (
 	"context"

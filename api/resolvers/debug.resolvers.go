@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 
+	"a1liu.com/data/api/dbutil"
 	"a1liu.com/data/api/graph"
 	"a1liu.com/data/api/model"
-	"a1liu.com/data/api/util/dbcopy"
 )
 
 type debugQueryResolver struct{}
@@ -22,7 +22,7 @@ func (r *Resolver) DebugQuery() graph.DebugQueryResolver {
 func (d debugQueryResolver) Tables(ctx context.Context, obj *model.DebugQuery) ([]model.PgTable, error) {
 	rctx := ResCtx(ctx)
 
-	names, err := dbcopy.ListTables(ctx, rctx.Pool)
+	names, err := dbutil.ListTables(ctx, rctx.Pool)
 	tables := make([]model.PgTable, len(names))
 	for idx, name := range names {
 		tables[idx] = model.PgTable{Name: name}
@@ -56,7 +56,7 @@ func (d debugMutationResolver) WriteRawData(ctx context.Context, obj *model.Debu
 	}
 	defer conn.Release()
 
-	rowCount, err := dbcopy.WriteUnversionedDataToTable(ctx, rctx.Pool, table, data)
+	rowCount, err := dbutil.WriteUnversionedDataToTable(ctx, rctx.Pool, table, data)
 	return float64(rowCount), err
 }
 
@@ -73,11 +73,11 @@ func (p pgTableResolver) Columns(ctx context.Context, obj *model.PgTable) ([]mod
 	}
 	defer conn.Release()
 
-	return dbcopy.ListTableColumns(ctx, conn, obj.Name)
+	return dbutil.ListTableColumns(ctx, conn, obj.Name)
 }
 
 func (p pgTableResolver) DumbFullExport(ctx context.Context, obj *model.PgTable) (*model.TableExport, error) {
 	rctx := ResCtx(ctx)
 
-	return dbcopy.ExportTableToJson(ctx, rctx.Pool, obj.Name)
+	return dbutil.ExportTableToJson(ctx, rctx.Pool, obj.Name)
 }
