@@ -2,9 +2,8 @@ package dbutil
 
 import (
 	"context"
-	"embed"
-	"io/fs"
 
+	"a1liu.com/data/api/dbutil/migrations"
 	"a1liu.com/data/api/model"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/tern/v2/migrate"
@@ -12,9 +11,6 @@ import (
 
 const VersionTableName = "schema_version"
 const VersionTable = "public." + VersionTableName
-
-//go:embed migrations/*.sql
-var migrations embed.FS
 
 type TableImport struct {
 	TableName    string
@@ -74,8 +70,7 @@ func MigrateDatabase(ctx context.Context, conn *pgxpool.Conn) error {
 		return err
 	}
 
-	sub, _ := fs.Sub(migrations, "migrations")
-	err = migrator.LoadMigrations(sub)
+	err = migrator.LoadMigrations(migrations.Files)
 	if err != nil {
 		return err
 	}
@@ -94,8 +89,7 @@ func MigrateDatabaseToVersion(ctx context.Context, conn *pgxpool.Conn, version i
 		return err
 	}
 
-	sub, _ := fs.Sub(migrations, "migrations")
-	err = migrator.LoadMigrations(sub)
+	err = migrator.LoadMigrations(migrations.Files)
 	if err != nil {
 		return err
 	}
