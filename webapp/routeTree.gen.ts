@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RangesRouteImport } from './routes/ranges'
+import { Route as GqlSandboxRouteImport } from './routes/gql-sandbox'
 import { Route as DebugRouteImport } from './routes/debug'
 import { Route as IndexRouteImport } from './routes/index'
 
 const RangesRoute = RangesRouteImport.update({
   id: '/ranges',
   path: '/ranges',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GqlSandboxRoute = GqlSandboxRouteImport.update({
+  id: '/gql-sandbox',
+  path: '/gql-sandbox',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DebugRoute = DebugRouteImport.update({
@@ -32,30 +38,34 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/debug': typeof DebugRoute
+  '/gql-sandbox': typeof GqlSandboxRoute
   '/ranges': typeof RangesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/debug': typeof DebugRoute
+  '/gql-sandbox': typeof GqlSandboxRoute
   '/ranges': typeof RangesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/debug': typeof DebugRoute
+  '/gql-sandbox': typeof GqlSandboxRoute
   '/ranges': typeof RangesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/debug' | '/ranges'
+  fullPaths: '/' | '/debug' | '/gql-sandbox' | '/ranges'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/debug' | '/ranges'
-  id: '__root__' | '/' | '/debug' | '/ranges'
+  to: '/' | '/debug' | '/gql-sandbox' | '/ranges'
+  id: '__root__' | '/' | '/debug' | '/gql-sandbox' | '/ranges'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DebugRoute: typeof DebugRoute
+  GqlSandboxRoute: typeof GqlSandboxRoute
   RangesRoute: typeof RangesRoute
 }
 
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/ranges'
       fullPath: '/ranges'
       preLoaderRoute: typeof RangesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gql-sandbox': {
+      id: '/gql-sandbox'
+      path: '/gql-sandbox'
+      fullPath: '/gql-sandbox'
+      preLoaderRoute: typeof GqlSandboxRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/debug': {
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DebugRoute: DebugRoute,
+  GqlSandboxRoute: GqlSandboxRoute,
   RangesRoute: RangesRoute,
 }
 export const routeTree = rootRouteImport
