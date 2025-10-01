@@ -1,0 +1,23 @@
+{
+  "name": "Extension",
+  "version": "1.0",
+  "manifest_version": 2,
+
+  "description": "Adds something i guess",
+
+  "icons": {
+    "48": "icons/silly.jpeg"
+  },
+
+  "permissions": [
+    "activeTab"
+  ],
+
+  "browser_action": {
+    "default_icon": "icons/silly.jpeg",
+    "default_title": "Extension",
+    "default_popup": "popup/index.html"
+  },
+
+  "web_accessible_resources": []
+}

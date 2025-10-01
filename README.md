@@ -14,6 +14,7 @@
 - `k3d cluster stop`
 - `skaffold dev --port-forward`
 - `kubectl get svc`
+- `cd plugin && web-ext run`
 
 ## Resources
 
