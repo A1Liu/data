@@ -97,6 +97,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputPreflopDecisionInput,
 		ec.unmarshalInputTableImportInput,
 	)
 	first := true
@@ -241,6 +242,70 @@ type Mutation {
   migrateDb: Boolean!
 }
 `, BuiltIn: false},
+	{Name: "../../graphql/poker.graphql", Input: `enum PreflopDecisionType {
+  Raise
+  CallOrCheck
+  Fold
+}
+
+type PreflopDecision {
+  """
+  AA, KK, QQ, JJ, TT, 99 etc. -> Pairs
+  ATo -> Ace Ten offsuit
+  ATs -> Ace Ten suited
+  AJ+ -> AA, AK, AQ, AT, etc.
+  K+Q+ -> AA, AK, AQ, KQ, KK  etc.
+  """
+  cardSpecifier: String!
+
+  type: PreflopDecisionType!
+  frequency: Float! # 0.5 means half the time, 1 means always, etc.
+}
+
+input PreflopDecisionInput {
+  cardSpecifier: String!
+  type: PreflopDecisionType!
+  frequency: Float!
+}
+
+enum Position {
+  SmallBlind
+  BigBlind
+  # UnderTheGun
+  LoJack
+  HighJack
+  Cutoff
+  Button
+}
+
+type PreflopRange {
+  id: ID!
+
+  position: Position!
+  facingRaiseFrom: Position
+
+  foldFrequency: Float!
+  callFrequncy: Float!
+  raiseFrequency: Float!
+
+  decisions: [PreflopDecision!]!
+}
+
+type PreflopRangeCollection {
+  id: ID!
+  name: String!
+  ranges: [PreflopRange!]!
+}
+
+type RangeQuery {
+  preflopRangeCollection(id: ID!): PreflopRangeCollection!
+  preflopRangeCollections: [PreflopRangeCollection!]!
+}
+
+type RangeMutation {
+  updatePreflopRange(id: ID!, decisions: [PreflopDecisionInput!]!): PreflopRange!
+}
+`, BuiltIn: false},
 	{Name: "../../graphql/users.graphql", Input: `"""
 """
 type User {
@@ -337,6 +402,70 @@ func (ec *executionContext) field_Query___type_argsName(
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 	if tmp, ok := rawArgs["name"]; ok {
 		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_RangeMutation_updatePreflopRange_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_RangeMutation_updatePreflopRange_argsID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	arg1, err := ec.field_RangeMutation_updatePreflopRange_argsDecisions(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["decisions"] = arg1
+	return args, nil
+}
+func (ec *executionContext) field_RangeMutation_updatePreflopRange_argsID(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+	if tmp, ok := rawArgs["id"]; ok {
+		return ec.unmarshalNID2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_RangeMutation_updatePreflopRange_argsDecisions(
+	ctx context.Context,
+	rawArgs map[string]any,
+) ([]model.PreflopDecisionInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("decisions"))
+	if tmp, ok := rawArgs["decisions"]; ok {
+		return ec.unmarshalNPreflopDecisionInput2ᚕa1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopDecisionInputᚄ(ctx, tmp)
+	}
+
+	var zeroVal []model.PreflopDecisionInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_RangeQuery_preflopRangeCollection_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_RangeQuery_preflopRangeCollection_argsID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_RangeQuery_preflopRangeCollection_argsID(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+	if tmp, ok := rawArgs["id"]; ok {
+		return ec.unmarshalNID2string(ctx, tmp)
 	}
 
 	var zeroVal string
@@ -933,6 +1062,599 @@ func (ec *executionContext) fieldContext_PgTable_dumbFullExport(_ context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _PreflopDecision_cardSpecifier(ctx context.Context, field graphql.CollectedField, obj *model.PreflopDecision) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PreflopDecision_cardSpecifier(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CardSpecifier, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PreflopDecision_cardSpecifier(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PreflopDecision",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PreflopDecision_type(ctx context.Context, field graphql.CollectedField, obj *model.PreflopDecision) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PreflopDecision_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.PreflopDecisionType)
+	fc.Result = res
+	return ec.marshalNPreflopDecisionType2a1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopDecisionType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PreflopDecision_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PreflopDecision",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type PreflopDecisionType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PreflopDecision_frequency(ctx context.Context, field graphql.CollectedField, obj *model.PreflopDecision) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PreflopDecision_frequency(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Frequency, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PreflopDecision_frequency(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PreflopDecision",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PreflopRange_id(ctx context.Context, field graphql.CollectedField, obj *model.PreflopRange) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PreflopRange_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PreflopRange_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PreflopRange",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PreflopRange_position(ctx context.Context, field graphql.CollectedField, obj *model.PreflopRange) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PreflopRange_position(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Position, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.Position)
+	fc.Result = res
+	return ec.marshalNPosition2a1liuᚗcomᚋdataᚋapiᚋmodelᚐPosition(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PreflopRange_position(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PreflopRange",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Position does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PreflopRange_facingRaiseFrom(ctx context.Context, field graphql.CollectedField, obj *model.PreflopRange) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PreflopRange_facingRaiseFrom(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FacingRaiseFrom, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Position)
+	fc.Result = res
+	return ec.marshalOPosition2ᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐPosition(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PreflopRange_facingRaiseFrom(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PreflopRange",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Position does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PreflopRange_foldFrequency(ctx context.Context, field graphql.CollectedField, obj *model.PreflopRange) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PreflopRange_foldFrequency(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FoldFrequency, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PreflopRange_foldFrequency(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PreflopRange",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PreflopRange_callFrequncy(ctx context.Context, field graphql.CollectedField, obj *model.PreflopRange) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PreflopRange_callFrequncy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CallFrequncy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PreflopRange_callFrequncy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PreflopRange",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PreflopRange_raiseFrequency(ctx context.Context, field graphql.CollectedField, obj *model.PreflopRange) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PreflopRange_raiseFrequency(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RaiseFrequency, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PreflopRange_raiseFrequency(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PreflopRange",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PreflopRange_decisions(ctx context.Context, field graphql.CollectedField, obj *model.PreflopRange) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PreflopRange_decisions(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Decisions, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]model.PreflopDecision)
+	fc.Result = res
+	return ec.marshalNPreflopDecision2ᚕa1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopDecisionᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PreflopRange_decisions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PreflopRange",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cardSpecifier":
+				return ec.fieldContext_PreflopDecision_cardSpecifier(ctx, field)
+			case "type":
+				return ec.fieldContext_PreflopDecision_type(ctx, field)
+			case "frequency":
+				return ec.fieldContext_PreflopDecision_frequency(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PreflopDecision", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PreflopRangeCollection_id(ctx context.Context, field graphql.CollectedField, obj *model.PreflopRangeCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PreflopRangeCollection_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PreflopRangeCollection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PreflopRangeCollection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PreflopRangeCollection_name(ctx context.Context, field graphql.CollectedField, obj *model.PreflopRangeCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PreflopRangeCollection_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PreflopRangeCollection_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PreflopRangeCollection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PreflopRangeCollection_ranges(ctx context.Context, field graphql.CollectedField, obj *model.PreflopRangeCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PreflopRangeCollection_ranges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Ranges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]model.PreflopRange)
+	fc.Result = res
+	return ec.marshalNPreflopRange2ᚕa1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopRangeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PreflopRangeCollection_ranges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PreflopRangeCollection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_PreflopRange_id(ctx, field)
+			case "position":
+				return ec.fieldContext_PreflopRange_position(ctx, field)
+			case "facingRaiseFrom":
+				return ec.fieldContext_PreflopRange_facingRaiseFrom(ctx, field)
+			case "foldFrequency":
+				return ec.fieldContext_PreflopRange_foldFrequency(ctx, field)
+			case "callFrequncy":
+				return ec.fieldContext_PreflopRange_callFrequncy(ctx, field)
+			case "raiseFrequency":
+				return ec.fieldContext_PreflopRange_raiseFrequency(ctx, field)
+			case "decisions":
+				return ec.fieldContext_PreflopRange_decisions(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PreflopRange", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_sessionUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_sessionUser(ctx, field)
 	if err != nil {
@@ -1156,6 +1878,192 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RangeMutation_updatePreflopRange(ctx context.Context, field graphql.CollectedField, obj *model.RangeMutation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RangeMutation_updatePreflopRange(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatePreflopRange, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.PreflopRange)
+	fc.Result = res
+	return ec.marshalNPreflopRange2ᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopRange(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RangeMutation_updatePreflopRange(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RangeMutation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_PreflopRange_id(ctx, field)
+			case "position":
+				return ec.fieldContext_PreflopRange_position(ctx, field)
+			case "facingRaiseFrom":
+				return ec.fieldContext_PreflopRange_facingRaiseFrom(ctx, field)
+			case "foldFrequency":
+				return ec.fieldContext_PreflopRange_foldFrequency(ctx, field)
+			case "callFrequncy":
+				return ec.fieldContext_PreflopRange_callFrequncy(ctx, field)
+			case "raiseFrequency":
+				return ec.fieldContext_PreflopRange_raiseFrequency(ctx, field)
+			case "decisions":
+				return ec.fieldContext_PreflopRange_decisions(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PreflopRange", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_RangeMutation_updatePreflopRange_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RangeQuery_preflopRangeCollection(ctx context.Context, field graphql.CollectedField, obj *model.RangeQuery) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RangeQuery_preflopRangeCollection(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PreflopRangeCollection, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.PreflopRangeCollection)
+	fc.Result = res
+	return ec.marshalNPreflopRangeCollection2ᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopRangeCollection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RangeQuery_preflopRangeCollection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RangeQuery",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_PreflopRangeCollection_id(ctx, field)
+			case "name":
+				return ec.fieldContext_PreflopRangeCollection_name(ctx, field)
+			case "ranges":
+				return ec.fieldContext_PreflopRangeCollection_ranges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PreflopRangeCollection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_RangeQuery_preflopRangeCollection_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RangeQuery_preflopRangeCollections(ctx context.Context, field graphql.CollectedField, obj *model.RangeQuery) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RangeQuery_preflopRangeCollections(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PreflopRangeCollections, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]model.PreflopRangeCollection)
+	fc.Result = res
+	return ec.marshalNPreflopRangeCollection2ᚕa1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopRangeCollectionᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RangeQuery_preflopRangeCollections(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RangeQuery",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_PreflopRangeCollection_id(ctx, field)
+			case "name":
+				return ec.fieldContext_PreflopRangeCollection_name(ctx, field)
+			case "ranges":
+				return ec.fieldContext_PreflopRangeCollection_ranges(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PreflopRangeCollection", field.Name)
 		},
 	}
 	return fc, nil
@@ -3376,6 +4284,47 @@ func (ec *executionContext) fieldContext___Type_isOneOf(_ context.Context, field
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputPreflopDecisionInput(ctx context.Context, obj any) (model.PreflopDecisionInput, error) {
+	var it model.PreflopDecisionInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"cardSpecifier", "type", "frequency"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "cardSpecifier":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cardSpecifier"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CardSpecifier = data
+		case "type":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			data, err := ec.unmarshalNPreflopDecisionType2a1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopDecisionType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Type = data
+		case "frequency":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("frequency"))
+			data, err := ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Frequency = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputTableImportInput(ctx context.Context, obj any) (model.TableImportInput, error) {
 	var it model.TableImportInput
 	asMap := map[string]any{}
@@ -3812,6 +4761,170 @@ func (ec *executionContext) _PgTable(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
+var preflopDecisionImplementors = []string{"PreflopDecision"}
+
+func (ec *executionContext) _PreflopDecision(ctx context.Context, sel ast.SelectionSet, obj *model.PreflopDecision) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, preflopDecisionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PreflopDecision")
+		case "cardSpecifier":
+			out.Values[i] = ec._PreflopDecision_cardSpecifier(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "type":
+			out.Values[i] = ec._PreflopDecision_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "frequency":
+			out.Values[i] = ec._PreflopDecision_frequency(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var preflopRangeImplementors = []string{"PreflopRange"}
+
+func (ec *executionContext) _PreflopRange(ctx context.Context, sel ast.SelectionSet, obj *model.PreflopRange) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, preflopRangeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PreflopRange")
+		case "id":
+			out.Values[i] = ec._PreflopRange_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "position":
+			out.Values[i] = ec._PreflopRange_position(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "facingRaiseFrom":
+			out.Values[i] = ec._PreflopRange_facingRaiseFrom(ctx, field, obj)
+		case "foldFrequency":
+			out.Values[i] = ec._PreflopRange_foldFrequency(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "callFrequncy":
+			out.Values[i] = ec._PreflopRange_callFrequncy(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "raiseFrequency":
+			out.Values[i] = ec._PreflopRange_raiseFrequency(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "decisions":
+			out.Values[i] = ec._PreflopRange_decisions(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var preflopRangeCollectionImplementors = []string{"PreflopRangeCollection"}
+
+func (ec *executionContext) _PreflopRangeCollection(ctx context.Context, sel ast.SelectionSet, obj *model.PreflopRangeCollection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, preflopRangeCollectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PreflopRangeCollection")
+		case "id":
+			out.Values[i] = ec._PreflopRangeCollection_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._PreflopRangeCollection_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "ranges":
+			out.Values[i] = ec._PreflopRangeCollection_ranges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -3880,6 +4993,89 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var rangeMutationImplementors = []string{"RangeMutation"}
+
+func (ec *executionContext) _RangeMutation(ctx context.Context, sel ast.SelectionSet, obj *model.RangeMutation) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, rangeMutationImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RangeMutation")
+		case "updatePreflopRange":
+			out.Values[i] = ec._RangeMutation_updatePreflopRange(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var rangeQueryImplementors = []string{"RangeQuery"}
+
+func (ec *executionContext) _RangeQuery(ctx context.Context, sel ast.SelectionSet, obj *model.RangeQuery) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, rangeQueryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("RangeQuery")
+		case "preflopRangeCollection":
+			out.Values[i] = ec._RangeQuery_preflopRangeCollection(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "preflopRangeCollections":
+			out.Values[i] = ec._RangeQuery_preflopRangeCollections(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4589,6 +5785,236 @@ func (ec *executionContext) marshalNPgTable2ᚕa1liuᚗcomᚋdataᚋapiᚋmodel�
 	return ret
 }
 
+func (ec *executionContext) unmarshalNPosition2a1liuᚗcomᚋdataᚋapiᚋmodelᚐPosition(ctx context.Context, v any) (model.Position, error) {
+	var res model.Position
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPosition2a1liuᚗcomᚋdataᚋapiᚋmodelᚐPosition(ctx context.Context, sel ast.SelectionSet, v model.Position) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNPreflopDecision2a1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopDecision(ctx context.Context, sel ast.SelectionSet, v model.PreflopDecision) graphql.Marshaler {
+	return ec._PreflopDecision(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPreflopDecision2ᚕa1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopDecisionᚄ(ctx context.Context, sel ast.SelectionSet, v []model.PreflopDecision) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	sm := semaphore.NewWeighted(1000)
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer func() {
+					sm.Release(1)
+					wg.Done()
+				}()
+			}
+			ret[i] = ec.marshalNPreflopDecision2a1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopDecision(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			if err := sm.Acquire(ctx, 1); err != nil {
+				ec.Error(ctx, ctx.Err())
+			} else {
+				go f(i)
+			}
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNPreflopDecisionInput2a1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopDecisionInput(ctx context.Context, v any) (model.PreflopDecisionInput, error) {
+	res, err := ec.unmarshalInputPreflopDecisionInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNPreflopDecisionInput2ᚕa1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopDecisionInputᚄ(ctx context.Context, v any) ([]model.PreflopDecisionInput, error) {
+	var vSlice []any
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]model.PreflopDecisionInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNPreflopDecisionInput2a1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopDecisionInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNPreflopDecisionType2a1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopDecisionType(ctx context.Context, v any) (model.PreflopDecisionType, error) {
+	var res model.PreflopDecisionType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPreflopDecisionType2a1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopDecisionType(ctx context.Context, sel ast.SelectionSet, v model.PreflopDecisionType) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNPreflopRange2a1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopRange(ctx context.Context, sel ast.SelectionSet, v model.PreflopRange) graphql.Marshaler {
+	return ec._PreflopRange(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPreflopRange2ᚕa1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopRangeᚄ(ctx context.Context, sel ast.SelectionSet, v []model.PreflopRange) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	sm := semaphore.NewWeighted(1000)
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer func() {
+					sm.Release(1)
+					wg.Done()
+				}()
+			}
+			ret[i] = ec.marshalNPreflopRange2a1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopRange(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			if err := sm.Acquire(ctx, 1); err != nil {
+				ec.Error(ctx, ctx.Err())
+			} else {
+				go f(i)
+			}
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNPreflopRange2ᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopRange(ctx context.Context, sel ast.SelectionSet, v *model.PreflopRange) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PreflopRange(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPreflopRangeCollection2a1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopRangeCollection(ctx context.Context, sel ast.SelectionSet, v model.PreflopRangeCollection) graphql.Marshaler {
+	return ec._PreflopRangeCollection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPreflopRangeCollection2ᚕa1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopRangeCollectionᚄ(ctx context.Context, sel ast.SelectionSet, v []model.PreflopRangeCollection) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	sm := semaphore.NewWeighted(1000)
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer func() {
+					sm.Release(1)
+					wg.Done()
+				}()
+			}
+			ret[i] = ec.marshalNPreflopRangeCollection2a1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopRangeCollection(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			if err := sm.Acquire(ctx, 1); err != nil {
+				ec.Error(ctx, ctx.Err())
+			} else {
+				go f(i)
+			}
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNPreflopRangeCollection2ᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐPreflopRangeCollection(ctx context.Context, sel ast.SelectionSet, v *model.PreflopRangeCollection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PreflopRangeCollection(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4949,6 +6375,22 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOPosition2ᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐPosition(ctx context.Context, v any) (*model.Position, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.Position)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOPosition2ᚖa1liuᚗcomᚋdataᚋapiᚋmodelᚐPosition(ctx context.Context, sel ast.SelectionSet, v *model.Position) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v any) (*string, error) {

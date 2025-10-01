@@ -1,4 +1,4 @@
--- This is a sample migration.
+-- Write your migrate up statements here
 
 CREATE TABLE IF NOT EXISTS user_account (
   id uuid NOT NULL PRIMARY KEY,

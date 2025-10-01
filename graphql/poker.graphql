@@ -1,0 +1,63 @@
+enum PreflopDecisionType {
+  Raise
+  CallOrCheck
+  Fold
+}
+
+type PreflopDecision {
+  """
+  AA, KK, QQ, JJ, TT, 99 etc. -> Pairs
+  ATo -> Ace Ten offsuit
+  ATs -> Ace Ten suited
+  AJ+ -> AA, AK, AQ, AT, etc.
+  K+Q+ -> AA, AK, AQ, KQ, KK  etc.
+  """
+  cardSpecifier: String!
+
+  type: PreflopDecisionType!
+  frequency: Float! # 0.5 means half the time, 1 means always, etc.
+}
+
+input PreflopDecisionInput {
+  cardSpecifier: String!
+  type: PreflopDecisionType!
+  frequency: Float!
+}
+
+enum Position {
+  SmallBlind
+  BigBlind
+  # UnderTheGun
+  LoJack
+  HighJack
+  Cutoff
+  Button
+}
+
+type PreflopRange {
+  id: ID!
+
+  position: Position!
+  facingRaiseFrom: Position
+
+  foldFrequency: Float!
+  callFrequncy: Float!
+  raiseFrequency: Float!
+
+  decisions: [PreflopDecision!]!
+}
+
+type PreflopRangeCollection {
+  id: ID!
+  name: String!
+  ranges: [PreflopRange!]!
+}
+
+type RangeQuery {
+  preflopRangeCollection(id: ID!): PreflopRangeCollection!
+  preflopRangeCollections: [PreflopRangeCollection!]!
+}
+
+type RangeMutation {
+  updatePreflopRange(id: ID!, decisions: [PreflopDecisionInput!]!): PreflopRange!
+}

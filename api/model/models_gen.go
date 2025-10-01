@@ -2,13 +2,153 @@
 
 package model
 
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
+
 type PgColumn struct {
 	Name         string `json:"name"`
 	DataTypeName string `json:"data_type_name"`
+}
+
+type PreflopDecision struct {
+	// AA, KK, QQ, JJ, TT, 99 etc. -> Pairs
+	// ATo -> Ace Ten offsuit
+	// ATs -> Ace Ten suited
+	// AJ+ -> AA, AK, AQ, AT, etc.
+	// K+Q+ -> AA, AK, AQ, KQ, KK  etc.
+	CardSpecifier string              `json:"cardSpecifier"`
+	Type          PreflopDecisionType `json:"type"`
+	Frequency     float64             `json:"frequency"`
+}
+
+type PreflopDecisionInput struct {
+	CardSpecifier string              `json:"cardSpecifier"`
+	Type          PreflopDecisionType `json:"type"`
+	Frequency     float64             `json:"frequency"`
+}
+
+type PreflopRange struct {
+	ID              string            `json:"id"`
+	Position        Position          `json:"position"`
+	FacingRaiseFrom *Position         `json:"facingRaiseFrom,omitempty"`
+	FoldFrequency   float64           `json:"foldFrequency"`
+	CallFrequncy    float64           `json:"callFrequncy"`
+	RaiseFrequency  float64           `json:"raiseFrequency"`
+	Decisions       []PreflopDecision `json:"decisions"`
+}
+
+type PreflopRangeCollection struct {
+	ID     string         `json:"id"`
+	Name   string         `json:"name"`
+	Ranges []PreflopRange `json:"ranges"`
+}
+
+type RangeMutation struct {
+	UpdatePreflopRange *PreflopRange `json:"updatePreflopRange"`
+}
+
+type RangeQuery struct {
+	PreflopRangeCollection  *PreflopRangeCollection  `json:"preflopRangeCollection"`
+	PreflopRangeCollections []PreflopRangeCollection `json:"preflopRangeCollections"`
 }
 
 type TableImportInput struct {
 	Name    string           `json:"name"`
 	Version int32            `json:"version"`
 	Rows    []map[string]any `json:"rows"`
+}
+
+type Position string
+
+const (
+	PositionSmallBlind Position = "SmallBlind"
+	PositionBigBlind   Position = "BigBlind"
+	PositionLoJack     Position = "LoJack"
+	PositionHighJack   Position = "HighJack"
+	PositionCutoff     Position = "Cutoff"
+	PositionButton     Position = "Button"
+)
+
+var AllPosition = []Position{
+	PositionSmallBlind,
+	PositionBigBlind,
+	PositionLoJack,
+	PositionHighJack,
+	PositionCutoff,
+	PositionButton,
+}
+
+func (e Position) IsValid() bool {
+	switch e {
+	case PositionSmallBlind, PositionBigBlind, PositionLoJack, PositionHighJack, PositionCutoff, PositionButton:
+		return true
+	}
+	return false
+}
+
+func (e Position) String() string {
+	return string(e)
+}
+
+func (e *Position) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Position(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Position", str)
+	}
+	return nil
+}
+
+func (e Position) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type PreflopDecisionType string
+
+const (
+	PreflopDecisionTypeRaise       PreflopDecisionType = "Raise"
+	PreflopDecisionTypeCallOrCheck PreflopDecisionType = "CallOrCheck"
+	PreflopDecisionTypeFold        PreflopDecisionType = "Fold"
+)
+
+var AllPreflopDecisionType = []PreflopDecisionType{
+	PreflopDecisionTypeRaise,
+	PreflopDecisionTypeCallOrCheck,
+	PreflopDecisionTypeFold,
+}
+
+func (e PreflopDecisionType) IsValid() bool {
+	switch e {
+	case PreflopDecisionTypeRaise, PreflopDecisionTypeCallOrCheck, PreflopDecisionTypeFold:
+		return true
+	}
+	return false
+}
+
+func (e PreflopDecisionType) String() string {
+	return string(e)
+}
+
+func (e *PreflopDecisionType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PreflopDecisionType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PreflopDecisionType", str)
+	}
+	return nil
+}
+
+func (e PreflopDecisionType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
