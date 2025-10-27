@@ -59,5 +59,8 @@ type RangeQuery {
 }
 
 type RangeMutation {
-  updatePreflopRange(id: ID!, decisions: [PreflopDecisionInput!]!): PreflopRange!
+  updatePreflopRange(
+    id: ID!
+    decisions: [PreflopDecisionInput!]!
+  ): PreflopRange!
 }

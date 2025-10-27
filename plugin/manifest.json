@@ -9,9 +9,7 @@
     "48": "icons/silly.jpeg"
   },
 
-  "permissions": [
-    "activeTab"
-  ],
+  "permissions": ["activeTab"],
 
   "browser_action": {
     "default_icon": "icons/silly.jpeg",

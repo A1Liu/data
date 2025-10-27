@@ -1,1 +1,13 @@
-[{"name":"user_account","version":1,"rows":[{"email":"michelle@michelle.com","id":"70bbbbbb-bbbb-4a89-bdb0-04434fc94582","name":"Michelle"}]}]
+[
+  {
+    "name": "user_account",
+    "version": 1,
+    "rows": [
+      {
+        "email": "michelle@michelle.com",
+        "id": "70bbbbbb-bbbb-4a89-bdb0-04434fc94582",
+        "name": "Michelle"
+      }
+    ]
+  }
+]
