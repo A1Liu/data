@@ -23,9 +23,11 @@
 - https://github.com/crewjam/saml
 - https://github.com/go-pkgz/auth
 
-## Tools
+## JS Tools/Libraries
 - React
 - ahooks
 - lodash
+- zod
+- zustand
 - in-house:
   - @a1liu/js-utils
