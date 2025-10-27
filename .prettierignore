@@ -1,1 +1,3 @@
 routeTree.gen.*
+*.md
+pnpm-lock.yaml

@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "format": "prettier . '!pnpm-lock.yaml' --write",
+    "format": "prettier . --write --list-different",
     "ts-check": "tsc --noEmit",
     "preview": "vite preview"
   },
