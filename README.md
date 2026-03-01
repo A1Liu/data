@@ -6,6 +6,8 @@
 - Someday svelte? but not today
 - kafka??
 
+Tests w/ smthn similar to https://github.com/codepunkt/vitest-environment-prisma-postgres
+
 ## Commands
 
 - `skaffold run -f skaffold/infra.yml`
