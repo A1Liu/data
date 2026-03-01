@@ -1,20 +1,22 @@
-import { defineConfig } from "vite";
-import tailwindcss from "@tailwindcss/vite";
-import { tanstackRouter } from "@tanstack/router-plugin/vite";
-import react from "@vitejs/plugin-react-swc";
+import { defineConfig } from 'vite'
+import { devtools } from '@tanstack/devtools-vite'
+import tsconfigPaths from 'vite-tsconfig-paths'
 
-// https://vite.dev/config/
-export default defineConfig({
+import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+
+import viteReact from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import { nitro } from 'nitro/vite'
+
+const config = defineConfig({
   plugins: [
-    // Order matters, must be before react plugin
-    tanstackRouter({
-      target: "react",
-      autoCodeSplitting: true,
-      routesDirectory: "./webapp/routes",
-      generatedRouteTree: "./webapp/routeTree.gen.ts",
-    }),
-    react(),
+    devtools(),
+    nitro({ rollupConfig: { external: [/^@sentry\//] } }),
+    tsconfigPaths({ projects: ['./tsconfig.json'] }),
     tailwindcss(),
+    tanstackStart(),
+    viteReact(),
   ],
-  root: "./webapp",
-});
+})
+
+export default config
