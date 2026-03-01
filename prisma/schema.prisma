@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model UserAccount {
+  id    String @id @db.Uuid
+  name  String
+  email String
+
+  @@map("user_account")
+}
+
+model PreflopRangeCollection {
+  id     String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name   String
+  ranges PreflopRange[]
+
+  @@map("preflop_range_collection")
+}
+
+model PreflopRange {
+  id             String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  collectionId   String  @map("collection_id") @db.Uuid
+  position       String
+  facingRaiseFrom String @map("facing_raise_from")
+  decisions      Json
+
+  collection PreflopRangeCollection @relation(fields: [collectionId], references: [id])
+
+  @@index([collectionId], map: "preflop_range_collection_id")
+  @@map("preflop_range")
+}

@@ -16,12 +16,9 @@ pkgs.mkShellNoCC {
     # Tools
     typescript-language-server
     nodePackages.prettier
-    gopls
-    web-ext
 
     # Programming Languages
     nodejs_22
     pnpm
-    go
   ];
 }

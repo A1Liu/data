@@ -34,8 +34,6 @@ function RangesPage() {
     [...Array(13)].map(() => [...Array(13)].map(() => 0)),
   );
 
-  const [clickDown, setClickDown] = useState(false);
-
   const setRangeValue = ({
     r,
     c,
@@ -49,31 +47,6 @@ function RangesPage() {
       return x.map((row, rowIdx) =>
         row.map((prevVal, colIdx) => {
           if (rowIdx !== (r ?? rowIdx)) return prevVal;
-          if (colIdx !== (c ?? colIdx)) return prevVal;
-
-          return value;
-        }),
-      );
-    });
-  };
-
-  const setRangeValueSquare = ({
-    minR,
-    maxR,
-    minC,
-    maxC,
-    value,
-  }: {
-    minR: number | null;
-    maxR: number | null;
-    minC: number | null;
-    maxC: number | null;
-    value: number;
-  }) => {
-    setRange((x) => {
-      return x.map((row, rowIdx) =>
-        row.map((prevVal, colIdx) => {
-          if (minR !== null && rowIdx < minR) return prevVal;
           if (colIdx !== (c ?? colIdx)) return prevVal;
 
           return value;

@@ -1,33 +1,35 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: gql-api
+  name: data-app
 spec:
   ports:
-    - port: 8080
+    - port: 3000
   type: LoadBalancer
   selector:
-    app: gql-api
+    app: data-app
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gql-api
+  name: data-app
 spec:
   selector:
     matchLabels:
-      app: gql-api
+      app: data-app
   template:
     metadata:
       labels:
-        app: gql-api
+        app: data-app
     spec:
       containers:
-        - name: gql-api
-          image: a1liu/gql-api
+        - name: data-app
+          image: a1liu/data-app
           ports:
-            - containerPort: 8080
+            - containerPort: 3000
           env:
+            - name: DATABASE_URL
+              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/$(POSTGRES_DB)"
             - name: POSTGRES_HOST
               value: "postgres-service"
             - name: POSTGRES_PASSWORD
