@@ -5,12 +5,12 @@ build:
     useBuildkit: true
     push: false # shouldn't technically be necessary
   artifacts:
-    - image: a1liu/gql-api
+    - image: a1liu/webapp
       context: .
       docker:
-        dockerfile: api/Dockerfile
+        dockerfile: Dockerfile
 
 deploy:
   kubectl:
     manifests:
-      - api/deploy.yml
+      - infra/webapp.yml

@@ -5,6 +5,7 @@
 - skaffold
 - Someday svelte? but not today
 - kafka??
+- https://www.npmjs.com/package/whisper-node
 
 Tests w/ smthn similar to https://github.com/codepunkt/vitest-environment-prisma-postgres
 
