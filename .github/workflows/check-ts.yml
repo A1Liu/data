@@ -46,6 +46,9 @@ jobs:
         shell: bash
         run: pnpm install --frozen-lockfile
 
+      - name: Create fake .env.local
+        run: echo 'DATABASE_URL="postgresql://postgres-user:password@postgres-service:5432/data-db"' > .env.local
+
       - name: Run generate
         shell: bash
         run: |
