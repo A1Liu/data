@@ -42,6 +42,10 @@ jobs:
           cache-dependency-path: pnpm-lock.yaml
           cache: pnpm
 
+      - name: Install packages
+        shell: bash
+        run: pnpm install --frozen-lockfile
+
       - name: Run generate
         shell: bash
         run: |
