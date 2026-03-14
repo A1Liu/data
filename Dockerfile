@@ -24,13 +24,13 @@ WORKDIR /app
 
 # Set production environment
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=8080
 ENV HOST=0.0.0.0
 
 # Copy the self-contained Nitro server output
 COPY --from=builder /app/.output ./.output
 
-EXPOSE 3000
+EXPOSE 8080
 
 # TanStack Start + Nitro outputs a standalone server entry
 CMD ["node", ".output/server/index.mjs"]
