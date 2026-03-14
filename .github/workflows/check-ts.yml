@@ -28,6 +28,32 @@ jobs:
             exit 1
           fi
 
+  check-prisma:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          cache-dependency-path: pnpm-lock.yaml
+          cache: pnpm
+
+      - name: Run generate
+        shell: bash
+        run: |
+          pnpm run db:generate
+
+          if ! test -z "`git diff --stat`"; then
+            echo "Changes were found; please run 'pnpm install' and commit the output."
+            echo
+            git diff --name-only
+            exit 1
+          fi
+
   lint:
     runs-on: ubuntu-22.04
     steps:
