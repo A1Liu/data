@@ -13,4 +13,4 @@ build:
 deploy:
   kubectl:
     manifests:
-      - infra/webapp.yml
+      - skaffold/manifests/webapp.yml
