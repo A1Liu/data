@@ -6,7 +6,7 @@ import { queryClient, router, trpcClient } from "./router";
 import { trpc } from "./trpc";
 import "./styles.css";
 
-console.log('loaded')
+console.log("loaded");
 
 const rootEl = document.getElementById("root");
 if (!rootEl) throw new Error("Missing #root element");
