@@ -2,5 +2,11 @@
 /.vite
 /.tanstack
 /.output
+/dist
+/generated
 /.git
 /.github
+/skaffold
+/docs
+.env*
+**/.DS_Store

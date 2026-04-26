@@ -1,17 +1,16 @@
 {
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["client/**/*.ts", "client/**/*.tsx", "server/**/*.ts"],
   "compilerOptions": {
     "target": "ES2022",
     "jsx": "react-jsx",
     "module": "ESNext",
     "baseUrl": ".",
     "paths": {
-      "#/*": ["./src/*"],
-      "content-collections": ["./.content-collections/generated"],
-      "@/*": ["./src/*"]
+      "#client/*": ["./client/*"],
+      "#server/*": ["./server/*"]
     },
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["vite/client"],
+    "types": ["vite/client", "node"],
 
     /* Bundler mode */
     "moduleResolution": "bundler",

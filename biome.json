@@ -8,16 +8,18 @@
   "files": {
     "ignoreUnknown": false,
     "includes": [
-      "**/src/**/*",
+      "**/client/**/*",
+      "**/server/**/*",
       "**/.vscode/**/*",
       "**/index.html",
       "**/vite.config.ts",
       "**/prisma.config.ts",
       "**/package.json",
       "**/biome.json",
-      "!**/src/routeTree.gen.ts",
-      "!**/src/generated/*",
-      "!**/src/styles.css"
+      "!**/client/routeTree.gen.ts",
+      "!**/generated",
+      "!**/client/styles.css",
+      "!**/dist"
     ]
   },
   "formatter": {

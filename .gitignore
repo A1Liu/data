@@ -50,6 +50,6 @@ dist-ssr
 *.sln
 *.sw?
 
-/server
-
 .tanstack
+
+.claude/settings.local.json
