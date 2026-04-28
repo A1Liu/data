@@ -2,8 +2,8 @@
 // biome-ignore-all lint: Need to do a lot of silly stuff to get this to mock.
 //  In some sense fundamentally unsafe.
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "generated/prisma/client";
-import type { LogLevel } from "generated/prisma/internal/prismaNamespace";
+import { PrismaClient } from "../../generated/prisma/client";
+import type { LogLevel } from "../../generated/prisma/internal/prismaNamespace";
 
 export interface PrismaClientLike {
   $executeRawUnsafe(sql: string): Promise<unknown>;
@@ -19,8 +19,6 @@ interface TransactionOptions {
 }
 
 export interface PrismaPostgresEnvironmentOptions {
-  /** Path to your Prisma client. */
-  clientPath: string;
   /** Database url (optional). Read from `process.env.DATABASE_URL` otherwise. */
   databaseUrl?: string;
   /** Pass prisma loglevels to log to stdout. to log everything, pass `['query', 'info', 'warn', 'error']`. */
