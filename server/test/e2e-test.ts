@@ -7,7 +7,7 @@ export const test = baseTest
   .extend(
     "prismaMockContext",
     { scope: "worker" },
-    async ({}, { onCleanup }) => {
+    async (_ctx, { onCleanup }) => {
       const prismaMockContext = createPrismaContext({});
       onCleanup(async () => {
         await prismaMockContext.teardown();

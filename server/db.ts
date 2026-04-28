@@ -1,7 +1,7 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client.js";
 
-let GlobalPrisma: PrismaClient | undefined = undefined;
+let GlobalPrisma: PrismaClient | undefined;
 export function getPrismaSingleton() {
   if (GlobalPrisma) {
     return GlobalPrisma;
