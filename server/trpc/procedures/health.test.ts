@@ -1,10 +1,13 @@
 import { expect, test } from "vitest";
-import { createContext as createPrismaContext } from "../../test/mock-db";
+import { createPrismaMockContext as createPrismaContext } from "../../test/mock-db";
 import { createContext } from "../context";
 import { createCaller } from "../router";
 
 test("health check", async () => {
-  const prismaMockContext = createPrismaContext({});
+  const prismaMockContext = createPrismaContext({
+    databaseUrl:
+      "postgresql://postgres-user:password@192.168.194.69:5432/data-db",
+  });
 
   const ctx = await createContext({ prisma: prismaMockContext.client });
   const caller = createCaller(ctx);

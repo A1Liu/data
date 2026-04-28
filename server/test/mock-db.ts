@@ -34,7 +34,9 @@ export interface PrismaPostgresEnvironmentOptions {
  * @returns The test context object used by both the Vitest environment and the
  * user's Prisma client mock.
  */
-export function createContext(options: PrismaPostgresEnvironmentOptions) {
+export function createPrismaMockContext(
+  options: PrismaPostgresEnvironmentOptions,
+) {
   let savePointCounter = 0;
 
   /**
@@ -51,8 +53,11 @@ export function createContext(options: PrismaPostgresEnvironmentOptions) {
    */
   let internalEndTestTransaction: (() => void) | null = null;
 
+  const connectionString = options.databaseUrl ?? process.env.DATABASE_URL;
   const originalClient: PrismaClient = new PrismaClient({
-    adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+    adapter: new PrismaPg({
+      connectionString,
+    }),
     log: options.log,
   });
 
@@ -144,7 +149,7 @@ export function createContext(options: PrismaPostgresEnvironmentOptions) {
    * @returns A promise that resolves when the transaction is ready and the
    * test can begin.
    */
-  const beginTestTransaction = async () => {
+  const beginTestTransaction = () => {
     if (transactionClient !== null) {
       throw new Error(
         "[vitest-environment-prisma-postgres] beginTestTransaction called while a test transaction is already active. " +
@@ -179,7 +184,9 @@ export function createContext(options: PrismaPostgresEnvironmentOptions) {
     client,
     beginTestTransaction,
     endTestTransaction: () => internalEndTestTransaction?.(),
-    setup: () => originalClient.$connect(),
+    setup: () => {
+      return originalClient.$connect();
+    },
     teardown: () => originalClient.$disconnect(),
   };
 }

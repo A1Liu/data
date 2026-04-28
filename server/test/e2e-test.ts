@@ -1,5 +1,5 @@
 import { test as baseTest } from "vitest";
-import { createContext as createPrismaContext } from "./mock-db";
+import { createPrismaMockContext as createPrismaContext } from "./mock-db";
 import { createCaller } from "#server/trpc/router.ts";
 import { createContext } from "#server/trpc/context.ts";
 
@@ -8,7 +8,10 @@ export const test = baseTest
     "prismaMockContext",
     { scope: "worker" },
     async (_ctx, { onCleanup }) => {
-      const prismaMockContext = createPrismaContext({});
+      const prismaMockContext = createPrismaContext({
+        databaseUrl:
+          "postgresql://postgres-user:password@192.168.194.69:5432/data-db",
+      });
       onCleanup(async () => {
         await prismaMockContext.teardown();
       });
