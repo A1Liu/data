@@ -1,11 +1,8 @@
-/**
- * Integration test example for the `post` router
- */
 import { expect, test } from "vitest";
 import { createContext } from "../context";
 import { createCaller } from "../router";
 
-test("add and get post", async () => {
+test("health check", async () => {
   const ctx = await createContext({});
   const caller = createCaller(ctx);
 
