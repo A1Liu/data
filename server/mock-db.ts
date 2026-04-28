@@ -1,4 +1,6 @@
 // Copied from https://github.com/codepunkt/vitest-environment-prisma-postgres
+// biome-ignore-all lint: Need to do a lot of silly stuff to get this to mock.
+//  In some sense fundamentally unsafe.
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "generated/prisma/client";
 import type { LogLevel } from "generated/prisma/internal/prismaNamespace";

@@ -16,7 +16,6 @@ await app.register(fastifyTRPCPlugin, {
   },
 });
 
-
 app.get("/healthz", async () => ({ ok: true }));
 
 try {

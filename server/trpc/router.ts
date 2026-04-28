@@ -5,7 +5,6 @@ export const appRouter = router({
   health: healthProcedure,
 });
 
-export const createCaller = createCallerFactory(appRouter)
+export const createCaller = createCallerFactory(appRouter);
 
 export type AppRouter = typeof appRouter;
-

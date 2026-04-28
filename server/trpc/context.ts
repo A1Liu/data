@@ -1,7 +1,10 @@
 import type { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify";
 import { prisma } from "../db.ts";
 
-export async function createContext({ req, res }: Partial<CreateFastifyContextOptions>) {
+export async function createContext({
+  req,
+  res,
+}: Partial<CreateFastifyContextOptions>) {
   return { prisma, req, res };
 }
 
