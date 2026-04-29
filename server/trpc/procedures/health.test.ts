@@ -1,26 +1,7 @@
-import { expect, test } from "vitest";
-import { createPrismaMockContext as createPrismaContext } from "../../test/mock-db";
-import { createContext } from "../context";
-import { createCaller } from "../router";
+import { e2eTest } from "#server/test/e2e-test.ts";
 
-test("health check", async () => {
-  const prismaMockContext = createPrismaContext({
-    databaseUrl:
-      "postgresql://postgres-user:password@192.168.194.69:5432/data-db",
-  });
+e2eTest("health check", async ({ rpc, expect }) => {
+  const result = await rpc.health.apply({});
 
-  const ctx = await createContext({ prisma: prismaMockContext.client });
-  const caller = createCaller(ctx);
-
-  await prismaMockContext.setup();
-
-  await prismaMockContext.beginTestTransaction();
-
-  const post = await caller.health.apply({});
-
-  expect(post.ok).toBe(true);
-
-  prismaMockContext.endTestTransaction();
-
-  await prismaMockContext.teardown();
+  expect(result?.ok).toBe(true);
 });

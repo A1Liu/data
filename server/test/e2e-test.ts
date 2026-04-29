@@ -1,14 +1,14 @@
 import { test as baseTest } from "vitest";
 import { createContext } from "#server/trpc/context.ts";
 import { createCaller } from "#server/trpc/router.ts";
-import { createPrismaMockContext as createPrismaContext } from "./mock-db";
+import { createPrismaMockContext } from "./mock-db";
 
-export const test = baseTest
+export const e2eTest = baseTest
   .extend(
     "prismaMockContext",
     { scope: "worker" },
-    async (_ctx, { onCleanup }) => {
-      const prismaMockContext = createPrismaContext({
+    async ({}: any, { onCleanup }) => {
+      const prismaMockContext = createPrismaMockContext({
         databaseUrl:
           "postgresql://postgres-user:password@192.168.194.69:5432/data-db",
       });
@@ -20,7 +20,7 @@ export const test = baseTest
       return prismaMockContext;
     },
   )
-  .extend("prisma", {}, async ({ prismaMockContext }, { onCleanup }) => {
+  .extend("prisma", async ({ prismaMockContext }, { onCleanup }) => {
     const { client, beginTestTransaction, endTestTransaction } =
       prismaMockContext;
     onCleanup(async () => {
@@ -31,10 +31,11 @@ export const test = baseTest
 
     return client;
   })
-  // Function fixture - type is inferred from return value
-  .extend("caller", async ({ prisma }) => {
+  .extend("ctx", async ({ prisma }) => {
     const ctx = await createContext({ prisma });
+    return ctx;
+  })
+  .extend("rpc", async ({ ctx }) => {
     const caller = createCaller(ctx);
-
     return caller;
   });
