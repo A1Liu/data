@@ -7,7 +7,7 @@ export const e2eTest = baseTest
   .extend(
     "dbURL",
     { scope: "worker" },
-    () => "postgresql://postgres-user:password@192.168.194.69:5432/data-db",
+    () => "postgresql://postgres-user:password@192.168.194.69:5432/test-db",
   )
   .extend(
     "prismaMockContext",
