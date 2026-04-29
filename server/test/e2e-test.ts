@@ -1,7 +1,7 @@
 import { test as baseTest } from "vitest";
-import { createPrismaMockContext as createPrismaContext } from "./mock-db";
-import { createCaller } from "#server/trpc/router.ts";
 import { createContext } from "#server/trpc/context.ts";
+import { createCaller } from "#server/trpc/router.ts";
+import { createPrismaMockContext as createPrismaContext } from "./mock-db";
 
 export const test = baseTest
   .extend(

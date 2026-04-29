@@ -1,6 +1,6 @@
 import type { CreateFastifyContextOptions } from "@trpc/server/adapters/fastify";
-import { getPrismaSingleton } from "../db.ts";
 import type { PrismaClient } from "generated/prisma/client.ts";
+import { getPrismaSingleton } from "../db.ts";
 
 export async function createContext({
   prisma,
