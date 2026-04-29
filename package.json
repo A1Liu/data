@@ -13,7 +13,8 @@
     "dev:api": "dotenv -e .env.local -- tsx watch server/index.ts",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run",
+    "vitest": "vitest",
     "format": "biome format --fix",
     "lint": "biome lint",
     "check": "biome check",
@@ -66,7 +67,7 @@
     "typescript": "^5.7.2",
     "vite": "^7.1.7",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.0.5",
+    "vitest": "^4.1",
     "zod": "^4.3.5"
   },
   "prettier": {
