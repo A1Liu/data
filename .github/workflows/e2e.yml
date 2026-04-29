@@ -40,11 +40,8 @@ jobs:
         shell: bash
         run: pnpm install --frozen-lockfile
 
-      - name: Generate prisma client
-        run: pnpm exec prisma generate
-
       - name: Push prisma schema
-        run: pnpm exec prisma db push --skip-generate --accept-data-loss
+        run: pnpm exec prisma db push --accept-data-loss
 
       - name: Run tests
         run: pnpm test
