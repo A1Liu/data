@@ -5,12 +5,16 @@ import { createPrismaMockContext } from "./mock-db";
 
 export const e2eTest = baseTest
   .extend(
+    "dbURL",
+    { scope: "worker" },
+    () => "postgresql://postgres-user:password@192.168.194.69:5432/data-db",
+  )
+  .extend(
     "prismaMockContext",
     { scope: "worker" },
-    async ({}: any, { onCleanup }) => {
+    async ({ dbURL }, { onCleanup }) => {
       const prismaMockContext = createPrismaMockContext({
-        databaseUrl:
-          "postgresql://postgres-user:password@192.168.194.69:5432/data-db",
+        databaseUrl: dbURL,
       });
       onCleanup(async () => {
         await prismaMockContext.teardown();
