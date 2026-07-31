@@ -1,0 +1,13 @@
+# image.tag is overridden by skaffold with the tag it just built
+image:
+  repository: a1liu/web
+  tag: latest
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+# Entrypoint for the whole app; nginx proxies /trpc/ to the api Service.
+# The upstream address lives in client/nginx.conf, baked into the image.
+service:
+  type: LoadBalancer
+  port: 80

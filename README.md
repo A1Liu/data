@@ -2,7 +2,7 @@
 
 - k3s in EC2 t4g.nano - may never actually do this lmao
 - postgres + golang GQL thing
-- skaffold
+- skaffold + helm (`infra/`, one chart per service in `infra/charts/`)
 - Someday svelte? but not today
 - kafka??
 - https://www.npmjs.com/package/whisper-node
@@ -11,8 +11,8 @@ Tests w/ smthn similar to https://github.com/codepunkt/vitest-environment-prisma
 
 ## Commands
 
-- `skaffold run -f skaffold/infra.yml`
-- `skaffold dev -f skaffold/dev.yml`
+- `skaffold run -f infra/infra.yml`
+- `skaffold dev -f infra/dev.yml`
 - `k3d cluster start`
 - `k3d cluster stop`
 - `skaffold dev --port-forward`

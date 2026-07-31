@@ -1,0 +1,6 @@
+apiVersion: v2
+name: web
+description: Vite SPA served by nginx, proxies /trpc to the api chart
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

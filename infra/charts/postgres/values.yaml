@@ -1,0 +1,20 @@
+image:
+  repository: postgres
+  tag: "12"
+  pullPolicy: IfNotPresent
+
+db:
+  name: data-db
+  user: postgres-user
+  # This should **not** be in version control (it's `password`)
+  password: password
+
+service:
+  port: 5432
+
+storage:
+  # PersistentVolume is `manual`/hostPath, so it only works on a single node
+  className: manual
+  hostPath: /mnt1/postgres-data
+  capacity: 1Gi
+  request: 500Mi

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "postgres.name" . }}-pvc
+  labels:
+    type: local
+    {{- include "postgres.labels" . | nindent 4 }}
+spec:
+  storageClassName: {{ .Values.storage.className }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.storage.request }}
+  volumeName: {{ include "postgres.name" . }}-pv

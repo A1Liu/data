@@ -1,0 +1,44 @@
+apiVersion: skaffold/v4beta13
+kind: Config
+build:
+  local:
+    useBuildkit: true
+    push: false # shouldn't technically be necessary
+  artifacts:
+    - image: a1liu/api
+      context: .
+      docker:
+        dockerfile: server/Dockerfile.api
+    - image: a1liu/web
+      context: .
+      docker:
+        dockerfile: client/Dockerfile.web
+
+manifests:
+  helm:
+    releases:
+      # api first: nginx in the web image proxies /trpc/ to the api Service
+      - name: api
+        chartPath: infra/charts/api
+        setValueTemplates:
+          image.repository: "{{.IMAGE_REPO_a1liu_api}}"
+          image.tag: "{{.IMAGE_TAG_a1liu_api}}"
+      - name: web
+        chartPath: infra/charts/web
+        setValueTemplates:
+          image.repository: "{{.IMAGE_REPO_a1liu_web}}"
+          image.tag: "{{.IMAGE_TAG_a1liu_web}}"
+
+deploy:
+  helm:
+    releases:
+      - name: api
+        chartPath: infra/charts/api
+        valuesFiles:
+          - infra/charts/api/values.yaml
+        version: 0.1.0
+      - name: web
+        chartPath: infra/charts/web
+        valuesFiles:
+          - infra/charts/web/values.yaml
+        version: 0.1.0

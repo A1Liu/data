@@ -6,7 +6,7 @@
 /generated
 /.git
 /.github
-/skaffold
+/infra
 /docs
 .env*
 **/.DS_Store

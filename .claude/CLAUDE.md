@@ -9,3 +9,8 @@ Pattern: `[thing] [action] [reason]. [next step].`
 
 Not: "Sure! I'd be happy to help you with that. The issue you're experiencing is likely caused by..."
 Yes: "Bug in auth middleware. Token expiry check use `<` not `<=`. Fix:"
+
+## General practices
+1. Ensure docs and scripts are up to date after each change.
+2. Keeps docs short and linked. Prefer linking to somewhere relevant instead of
+   explaining the whole thing.

@@ -1,0 +1,22 @@
+# image.tag is overridden by skaffold with the tag it just built
+image:
+  repository: a1liu/api
+  tag: latest
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+# Reached by the web chart's nginx at http://api:8080
+service:
+  type: ClusterIP
+  port: 8080
+
+# Names of the resources created by the postgres chart. DATABASE_URL is built
+# from these; set `databaseUrl` to point somewhere else instead.
+postgres:
+  host: postgres-service
+  port: 5432
+  configMap: postgres-configuration
+  secret: postgres-credentials
+
+databaseUrl: ""
